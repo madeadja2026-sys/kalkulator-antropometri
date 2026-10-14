@@ -1,0 +1,14 @@
+{
+  "id": "./",
+  "name": "Kalkulator Antropometri Puskesmas",
+  "short_name": "Kalkulator BBI",
+  "description": "Kalkulator BBI, IMT, LPT dan hitung matematis dosis berbasis LPT.",
+  "lang": "id-ID",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait-primary",
+  "background_color": "#f3f7fb",
+  "theme_color": "#0f766e",
+  "icons": [{"src":"./icons/icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any"}]
+}
