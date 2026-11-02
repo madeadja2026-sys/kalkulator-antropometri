@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#0b766e"><meta name="description" content="Game edukasi pemeriksaan kesehatan: tekanan darah, antropometri, gula darah, asam urat dan kolesterol.">
+<link rel="manifest" href="./manifest.webmanifest"><link rel="icon" href="./icon.svg" type="image/svg+xml">
+<title>Health Check Simulator</title>
+<style>
+:root{--ink:#17324d;--muted:#64748b;--teal:#0f766e;--bg:#f2f7f8;--line:#dce7e9;--white:#fff;--red:#b42318;--amber:#a15c07;--green:#147d4b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+header{background:linear-gradient(135deg,#115e59,#0f766e 60%,#0e7490);color:white;padding:22px 16px 35px}
+.wrap{max-width:1100px;margin:auto}.brand{display:flex;gap:12px;align-items:center}.logo{width:48px;height:48px;border-radius:15px;background:#ffffff25;display:grid;place-items:center;font-size:25px}
+.eyebrow{font-size:10px;letter-spacing:.15em;font-weight:800;opacity:.85}h1{font-size:clamp(25px,5vw,36px);line-height:1.12;margin:5px 0}header p{margin:8px 0;color:#e5fffb;max-width:720px}
+main{max-width:1100px;margin:-18px auto 0;padding:0 12px 30px}.tabs{display:flex;gap:7px;overflow:auto;padding:0 0 12px}.tab{white-space:nowrap;border:1px solid var(--line);border-radius:99px;padding:9px 14px;background:white;color:var(--ink);font-weight:750}.tab.active{background:var(--teal);color:white;border-color:var(--teal)}
+.panel{display:none}.panel.active{display:block}.layout{display:grid;grid-template-columns:1.05fr .95fr;gap:14px;align-items:start}.card{background:white;border:1px solid var(--line);border-radius:19px;padding:17px;box-shadow:0 9px 28px #0f172a08;margin-bottom:14px}
+h2{font-size:18px;margin:0 0 4px}.sub,.hint{color:var(--muted);font-size:12px}.sub{margin:0 0 15px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:11px}.field{display:flex;flex-direction:column;gap:5px;min-width:0}.field label{font-size:12px;font-weight:750}
+input,select,textarea{width:100%;min-width:0;border:1px solid #cbd5e1;border-radius:11px;padding:11px;font:inherit;background:white;color:var(--ink)}input:focus,select:focus,button:focus-visible{outline:3px solid #67e8f9;outline-offset:2px}.full{grid-column:1/-1}.btn{border:0;border-radius:11px;padding:10px 14px;font:inherit;font-weight:750;cursor:pointer;background:#e8f1f2;color:var(--ink)}.btn.primary{background:var(--teal);color:white}.btn.light{background:white;color:var(--teal)}.btn.danger{background:#fee4e2;color:#912018}.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}
+.metrics{display:grid;grid-template-columns:1fr 1fr;gap:9px}.metric{border:1px solid var(--line);border-radius:14px;padding:12px;min-width:0}.metric .label{font-size:11px;color:var(--muted);font-weight:750}.metric .value{font-size:clamp(22px,4vw,29px);font-weight:850;letter-spacing:-.04em;overflow-wrap:anywhere}.metric .unit{font-size:11px;color:var(--muted)}
+.status{display:inline-block;border-radius:99px;background:#eef2f6;color:#475569;padding:3px 8px;font-size:11px;font-weight:800;margin-top:5px}.ok{background:#dcfce7;color:#166534}.warn{background:#fef3c7;color:#92400e}.bad{background:#fee2e2;color:#991b1b}.info{background:#dbeafe;color:#1e40af}
+.result-list{display:grid;gap:8px}.result{border:1px solid var(--line);border-radius:13px;padding:11px}.result strong{display:block}.result p{margin:4px 0 0;font-size:12px;color:var(--muted)}
+.note{border:1px solid #f5d78b;background:#fffbeb;color:#784b0b;padding:11px;border-radius:12px;font-size:12px;margin-top:12px}.callout{border:1px solid #fecaca;background:#fff1f2;color:#991b1b;padding:12px;border-radius:12px;font-size:13px;margin-bottom:12px}
+canvas{width:100%;height:190px;display:block}.history-item{border-bottom:1px solid var(--line);padding:10px 0;display:flex;justify-content:space-between;gap:10px}.history-item:last-child{border:0}.quiz-opt{display:block;width:100%;text-align:left;margin:8px 0;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}.quiz-opt:active{background:#e7f5f3}.muted{color:var(--muted)}.hide{display:none!important}footer{text-align:center;color:var(--muted);font-size:11px;padding:12px}
+@media(max-width:760px){.layout{grid-template-columns:1fr}main{padding-inline:10px}.card{padding:15px}}@media(max-width:430px){.fields{grid-template-columns:1fr}.full{grid-column:auto}.metrics{grid-template-columns:1fr 1fr}}
+@media print{header{background:white;color:var(--ink)}header p,.tabs,.actions,footer{display:none!important}main{margin:0}.panel{display:none!important}#check.panel.active{display:block!important}.layout{grid-template-columns:1fr 1fr}.card{box-shadow:none;break-inside:avoid}}
+</style>
+</head>
+<body>
+<header><div class="wrap"><div class="brand"><div class="logo">✚</div><div><div class="eyebrow">GAME EDUKASI KESEHATAN</div><h1>HEALTH CHECK SIMULATOR</h1><div>Simulasi angka pemeriksaan & analisis kesehatan</div></div></div><p>Latihan membaca hasil tekanan darah, antropometri, gula darah, asam urat dan kolesterol. Data tersimpan di perangkat ini.</p><div class="actions"><button id="install" class="btn light hide">＋ Instal aplikasi</button><button class="btn light" onclick="window.print()">Cetak ringkasan</button></div></div></header>
+<main>
+<nav class="tabs" aria-label="Menu aplikasi">
+<button class="tab active" data-tab="check">Pemeriksaan</button><button class="tab" data-tab="result">Analisis</button><button class="tab" data-tab="history">Riwayat</button><button class="tab" data-tab="game">Game kasus</button><button class="tab" data-tab="guide">Panduan</button>
+</nav>
+<section id="check" class="panel active">
+<div class="layout">
+<div>
+<div class="card"><h2>1. Identitas simulasi</h2><p class="sub">Gunakan kode atau nama samaran. Hindari memasukkan identitas sensitif pasien nyata.</p>
+<div class="fields">
+<div class="field"><label for="caseName">Nama/kode simulasi</label><input id="caseName" maxlength="40" placeholder="Contoh: Pasien A"></div>
+<div class="field"><label for="age">Umur (tahun)</label><input id="age" type="number" min="0" max="120" step="0.1" placeholder="Contoh: 35"></div>
+<div class="field"><label for="sex">Jenis kelamin biologis</label><select id="sex"><option value="">Pilih</option><option value="male">Laki-laki</option><option value="female">Perempuan</option></select></div>
+<div class="field"><label for="preg">Status kehamilan</label><select id="preg"><option value="no">Tidak hamil / tidak berlaku</option><option value="yes">Sedang hamil</option></select></div>
+<div class="field hide" id="gestWrap"><label for="gest">Usia kehamilan (minggu)</label><input id="gest" type="number" min="1" max="45" step="1" placeholder="Contoh: 24"></div>
+<div class="field"><label for="glucoseType">Jenis pemeriksaan gula</label><select id="glucoseType"><option value="">Tidak diperiksa</option><option value="fasting">Gula darah puasa (mg/dL)</option><option value="random">Gula darah sewaktu (mg/dL)</option><option value="ogtt">2 jam setelah TTGO 75 g (mg/dL)</option></select></div>
+</div></div>
+<div class="card"><h2>2. Pengukuran tubuh</h2><p class="sub">Masukkan angka sesuai satuan yang tertera.</p>
+<div class="fields">
+<div class="field"><label for="weight">Berat badan (kg)</label><input id="weight" type="number" min="0" max="400" step="0.1" inputmode="decimal" placeholder="kg"></div>
+<div class="field"><label for="height">Tinggi/panjang badan (cm)</label><input id="height" type="number" min="0" max="250" step="0.1" inputmode="decimal" placeholder="cm"></div>
+<div class="field"><label for="waist">Lingkar perut (cm)</label><input id="waist" type="number" min="0" max="200" step="0.1" inputmode="decimal" placeholder="cm"></div>
+<div class="field"><label for="mua">Lingkar lengan atas / LiLA (cm)</label><input id="mua" type="number" min="0" max="80" step="0.1" inputmode="decimal" placeholder="cm"></div>
+</div></div>
+<div class="card"><h2>3. Pemeriksaan kesehatan</h2><p class="sub">Tekanan darah dalam mmHg; hasil lab dalam mg/dL.</p>
+<div class="fields">
+<div class="field"><label for="sys">Sistolik</label><input id="sys" type="number" min="0" max="300" placeholder="Contoh: 120"></div>
+<div class="field"><label for="dia">Diastolik</label><input id="dia" type="number" min="0" max="200" placeholder="Contoh: 80"></div>
+<div class="field"><label for="glu">Gula darah</label><input id="glu" type="number" min="0" max="1500" step="0.1" placeholder="mg/dL"></div>
+<div class="field"><label for="uric">Asam urat</label><input id="uric" type="number" min="0" max="40" step="0.1" placeholder="mg/dL"></div>
+<div class="field"><label for="chol">Kolesterol total</label><input id="chol" type="number" min="0" max="1500" step="0.1" placeholder="mg/dL"></div>
+<div class="field"><label for="labNote">Catatan jenis/rentang lab</label><input id="labNote" maxlength="100" placeholder="Opsional"></div>
+<div class="field full"><label for="notes">Catatan pembelajaran</label><input id="notes" maxlength="200" placeholder="Opsional"></div>
+</div>
+<div class="actions"><button class="btn primary" id="analyze">Hitung & analisis</button><button class="btn" id="sample">Isi contoh dewasa</button><button class="btn" id="clear">Kosongkan</button></div>
+<div class="note">Aplikasi ini untuk belajar dan skrining awal. Hasil tidak menetapkan diagnosis, tidak menggantikan pemeriksaan ulang atau penilaian tenaga kesehatan.</div>
+</div></div>
+<div>
+<div class="card"><h2>Ringkasan hasil</h2><p class="sub">Hasil akan tampil setelah tombol Hitung & analisis ditekan.</p><div id="quick" class="metrics"><div class="metric"><div class="label">IMT</div><div class="value">—</div><div class="unit">kg/m²</div></div><div class="metric"><div class="label">Tekanan darah</div><div class="value">—</div><div class="unit">mmHg</div></div></div><div class="actions"><button class="btn primary" id="toResult">Lihat analisis lengkap</button></div></div>
+<div class="card"><h2>Petunjuk penting</h2><div class="result-list"><div class="result"><strong>Usia anak</strong><p>IMT harus diplot menurut umur dan jenis kelamin. Tekanan darah anak juga memerlukan tabel umur, jenis kelamin dan tinggi badan.</p></div><div class="result"><strong>Ibu hamil</strong><p>Gunakan IMT sebelum hamil dan kenaikan berat badan menurut usia kehamilan. Jangan memakai kategori IMT dewasa saat hamil.</p></div><div class="result"><strong>LiLA</strong><p>Interpretasi bergantung pada umur dan kondisi, termasuk kehamilan. Jangan gunakan satu ambang untuk semua usia.</p></div></div></div>
+</div></div></section>
+<section id="result" class="panel"><div class="layout"><div class="card"><h2>Hasil perhitungan</h2><p class="sub" id="resultSub">Belum ada hasil. Masukkan data pada menu Pemeriksaan.</p><div id="metrics" class="metrics"></div><div class="note">Nilai IMT adalah hasil matematis. Interpretasinya harus mengikuti umur, jenis kelamin, status kehamilan dan standar pertumbuhan yang sesuai.</div></div><div class="card"><h2>Diagram indikator</h2><p class="sub">Ringkasan status dari data yang tersedia.</p><canvas id="chart" width="600" height="300" role="img" aria-label="Diagram indikator pemeriksaan"></canvas><div id="chartLegend" class="hint"></div></div></div><div class="card"><h2>Interpretasi dan pembelajaran</h2><div id="interpretations" class="result-list"><p class="muted">Belum ada data.</p></div></div><div class="card"><h2>Rekomendasi edukasi</h2><div id="advice" class="result-list"><p class="muted">Hasil edukasi akan tampil setelah analisis.</p></div><div class="actions"><button class="btn primary" id="save">Simpan ke riwayat perangkat</button><button class="btn" onclick="window.print()">Cetak</button><button class="btn" id="exportOne">Ekspor hasil JSON</button></div></div></section>
+<section id="history" class="panel"><div class="card"><h2>Riwayat simulasi</h2><p class="sub">Data hanya disimpan pada penyimpanan lokal browser/perangkat ini.</p><div class="actions"><button class="btn" id="exportAll">Cadangkan semua data (JSON)</button><label class="btn" for="importFile">Pulihkan cadangan</label><input class="hide" id="importFile" type="file" accept="application/json"><button class="btn danger" id="deleteHistory">Hapus semua riwayat</button></div><div id="historyList" class="result-list" style="margin-top:12px"></div></div></section>
+<section id="game" class="panel"><div class="card"><h2>Tantangan kasus pasien virtual</h2><p class="sub">Pilih interpretasi paling tepat. Setiap jawaban benar mendapat 10 poin.</p><div class="metric"><div class="label">SKOR PEMBELAJARAN</div><div class="value" id="score">0</div><div class="unit">poin sesi ini</div></div><div id="quiz"></div><div class="actions"><button class="btn primary" id="nextQuiz">Kasus berikutnya</button><button class="btn" id="resetScore">Ulangi skor</button></div></div></section>
+<section id="guide" class="panel"><div class="card"><h2>Panduan penggunaan</h2><div class="result-list">
+<div class="result"><strong>1. Pengukuran tekanan darah</strong><p>Pasien istirahat 5 menit, posisi duduk, punggung tersangga, kaki menapak, lengan setinggi jantung dan manset sesuai ukuran. Ulangi pengukuran bila hasil tinggi. Satu hasil tidak cukup untuk diagnosis hipertensi.</p></div>
+<div class="result"><strong>2. IMT dan massa tubuh</strong><p>IMT = berat badan (kg) ÷ tinggi badan (m)². Rentang dewasa umum: kurang dari 18,5; 18,5–24,9; 25–29,9; dan ≥30. Ini bukan standar anak atau ibu hamil. Perkiraan berat pada rentang IMT normal hanya ditampilkan sebagai matematika edukatif.</p></div>
+<div class="result"><strong>3. Lingkar perut dan LiLA</strong><p>Lingkar perut pada orang dewasa dapat membantu skrining obesitas sentral. Ambang Asia yang sering digunakan: ≥90 cm laki-laki dan ≥80 cm perempuan. LiLA perlu standar spesifik umur/kehamilan; pada ibu hamil di Indonesia, LiLA di bawah 23,5 cm merupakan indikator risiko KEK dan perlu penilaian petugas.</p></div>
+<div class="result"><strong>4. Gula darah</strong><p>Ambang laboratorium untuk orang dewasa tidak hamil: gula puasa ≥126 mg/dL atau 2 jam TTGO ≥200 mg/dL dapat memenuhi kriteria diabetes dan perlu konfirmasi klinis. Gula sewaktu ≥200 mg/dL bermakna diagnostik terutama bila disertai gejala klasik. Skrining bukan diagnosis.</p></div>
+<div class="result"><strong>5. Kolesterol dan asam urat</strong><p>Kolesterol total dewasa: kurang dari 200 mg/dL umumnya diinginkan; 200–239 borderline; ≥240 tinggi. Asam urat harus dibandingkan dengan rentang rujukan laboratorium setempat dan konteks klinis; angka saja tidak mendiagnosis gout.</p></div>
+<div class="result"><strong>6. Anak, remaja dan lansia</strong><p>Untuk anak dan remaja, gunakan kurva WHO IMT-menurut-umur/tinggi-menurut-umur dan tabel tekanan darah pediatrik. Lansia perlu evaluasi komprehensif, bukan hanya IMT. Aplikasi ini belum menghitung z-score WHO atau persentil tekanan darah anak secara otomatis.</p></div>
+</div><div class="note">Bila tekanan darah sangat tinggi (misalnya ≥180 sistolik atau ≥120 diastolik), ulangi setelah istirahat dan segera minta evaluasi medis. Bila disertai nyeri dada, sesak, kelemahan satu sisi, gangguan bicara/penglihatan, atau sakit kepala hebat, cari pertolongan gawat darurat.</div></div></section>
+<footer>HEALTH CHECK SIMULATOR · Edukasi kesehatan · Offline-first · Data tersimpan di perangkat</footer>
+</main>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id), keys=['caseName','age','sex','preg','gest','glucoseType','weight','height','waist','mua','sys','dia','glu','uric','chol','labNote','notes'];
+let current=null, history=load(),score=0,quizIndex=0,answered=false;
+function load(){try{return JSON.parse(localStorage.getItem('hcs-history')||'[]')}catch(e){return[]}}
+function persist(){try{localStorage.setItem('hcs-history',JSON.stringify(history));return true}catch(e){alert('Penyimpanan perangkat penuh atau tidak tersedia. Ekspor cadangan data.');return false}}
+function num(id){let v=$(id).value;return v===''?null:Number(v)}
+function val(id){return $(id).value}
+function fmt(n,d=1){return Number(n).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function status(text,kind='info'){return '<span class="status '+kind+'">'+text+'</span>'}
+function card(label,value,unit,tag='',kind='info'){return '<div class="metric"><div class="label">'+label+'</div><div class="value">'+value+'</div><div class="unit">'+unit+'</div>'+(tag?status(tag,kind):'')+'</div>'}
+function setTab(id){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===id));if(id==='history')renderHistory();if(id==='result'&&current)drawChart(current)}
+document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+$('preg').addEventListener('change',()=>$('gestWrap').classList.toggle('hide',val('preg')!=='yes'));
+function calculate(){
+ const d={};keys.forEach(k=>d[k]=val(k));['age','gest','weight','height','waist','mua','sys','dia','glu','uric','chol'].forEach(k=>d[k]=num(k));
+ const errors=[];if(d.age===null||d.age<0||d.age>120)errors.push('Umur harus diisi antara 0–120 tahun.');
+ if(d.sex==='')errors.push('Pilih jenis kelamin biologis untuk standar yang memerlukannya.');
+ if(d.weight!==null&&(d.weight<=0||d.weight>400))errors.push('Berat badan tidak valid.');
+ if(d.height!==null&&(d.height<=0||d.height>250))errors.push('Tinggi/panjang badan tidak valid.');
+ if(d.sys!==null&&d.dia!==null&&d.sys<=d.dia)errors.push('Sistolik harus lebih tinggi daripada diastolik.');
+ if(d.preg==='yes'&&d.sex==='male')errors.push('Periksa kembali pilihan jenis kelamin dan status kehamilan.');
+ if(errors.length){alert(errors.join('\n'));return null}
+ const r={data:d,created:new Date().toISOString(),metrics:{},interpretations:[],advice:[]};
+ const age=d.age,adult=age>=18,child=age<18,preg=d.preg==='yes';
+ if(d.weight>0&&d.height>0){let bmi=d.weight/((d.height/100)**2);r.metrics.bmi=bmi;
+  if(adult&&!preg){let t=bmi<18.5?['Berat badan kurang','warn']:bmi<25?['Rentang normal','ok']:bmi<30?['Berat badan berlebih','warn']:['Obesitas','bad'];r.interpretations.push(['IMT',fmt(bmi,1)+' kg/m²',t[0],t[1],'Kategori skrining IMT dewasa. Nilai ini tidak mengukur massa lemak secara langsung dan bukan diagnosis.']);let lo=18.5*(d.height/100)**2,hi=24.9*(d.height/100)**2;r.metrics.weightRange=[lo,hi];r.interpretations.push(['Rentang berat matematis',fmt(lo,1)+'–'+fmt(hi,1)+' kg','Rentang setara IMT 18,5–24,9','info','Bukan target penurunan/kenaikan berat yang dipersonalisasi.']);
+  }else if(preg){r.interpretations.push(['IMT saat hamil',fmt(bmi,1)+' kg/m²','Gunakan IMT sebelum hamil','info','IMT saat hamil tidak dikategorikan memakai batas dewasa biasa. Kaji IMT pra-kehamilan dan kenaikan berat sesuai usia kehamilan.']);}
+  else{r.interpretations.push(['IMT anak/remaja',fmt(bmi,1)+' kg/m²','Perlu kurva IMT-menurut-umur','info','Nilai harus diplot menurut umur tepat dan jenis kelamin pada standar WHO; aplikasi ini tidak menghitung z-score.']);}
+  if(adult&&!preg&&d.waist>0){let cutoff=d.sex==='male'?90:80;let t=d.waist>=cutoff?['Di atas ambang skrining','warn']:['Di bawah ambang skrining','ok'];r.interpretations.push(['Lingkar perut',fmt(d.waist)+' cm',t[0],t[1],'Ambang skrining obesitas sentral populasi Asia: 90 cm laki-laki dan 80 cm perempuan.']);}
+ }
+ if(d.sys>0&&d.dia>0){let t;if(preg){t=(d.sys>=160||d.dia>=110)?['Tekanan sangat tinggi pada kehamilan','bad']:(d.sys>=140||d.dia>=90)?['Ambang hipertensi pada kehamilan','bad']:['Di bawah ambang 140/90','ok'];}
+ else if(child)t=['Perlu tabel tekanan darah anak','info'];
+ else t=(d.sys>=180||d.dia>=120)?['Sangat tinggi – perlu evaluasi segera','bad']:(d.sys>=140||d.dia>=90)?['Tinggi – perlu pengukuran ulang/evaluasi','bad']:(d.sys>=130||d.dia>=85)?['Di atas optimal','warn']:['Di bawah ambang tinggi','ok'];
+ r.interpretations.push(['Tekanan darah',d.sys+'/'+d.dia+' mmHg',t[0],t[1],child?'Tekanan darah anak dinilai menurut umur, jenis kelamin dan tinggi badan.':preg?'Pada kehamilan, ≥140/90 perlu evaluasi obstetri; ≥160/110 merupakan kondisi mendesak.':'Satu kali pengukuran tidak cukup untuk mendiagnosis hipertensi. Gunakan teknik benar dan pengukuran berulang.']);}
+ if(d.mua>0){let text=preg?(d.mua<23.5?'LiLA <23,5 cm: risiko KEK, perlu evaluasi':'LiLA ≥23,5 cm: tidak melewati ambang KEK'):'LiLA tercatat – gunakan standar umur/kondisi';let k=preg&&d.mua<23.5?'warn':'info';r.interpretations.push(['LiLA',fmt(d.mua)+' cm',text,k,preg?'Ambang 23,5 cm merupakan skrining risiko KEK ibu hamil di Indonesia, bukan diagnosis tunggal.':'Tidak ada satu ambang LiLA yang berlaku untuk semua usia dan kondisi.']);}
+ if(d.glu>0&&d.glucoseType){let t=['Hasil tercatat','info'],ex='Interpretasi bergantung pada jenis tes, kondisi puasa, gejala, usia dan kehamilan.';
+ if(child){t=['Perlu penilaian pediatrik','info'];}
+ else if(preg){t=['Gunakan protokol diabetes gestasional','info'];ex='Ambang TTGO kehamilan berbeda dan bergantung protokol. Hasil perlu dinilai tenaga kesehatan.';}
+ else if(d.glucoseType==='fasting'){t=d.glu>=126?['Mencapai ambang diabetes','bad']:d.glu>=100?['Rentang gangguan glukosa puasa','warn']:['Di bawah ambang prediabetes','ok'];ex='Ambang dewasa: puasa ≥126 mg/dL memenuhi kriteria laboratorium diabetes dan perlu konfirmasi sesuai pedoman.';}
+ else if(d.glucoseType==='ogtt'){t=d.glu>=200?['Mencapai ambang diabetes','bad']:d.glu>=140?['Rentang toleransi glukosa terganggu','warn']:['Di bawah ambang gangguan toleransi','ok'];ex='Untuk TTGO 75 g 2 jam pada dewasa tidak hamil: ≥200 mg/dL merupakan ambang diabetes.';}
+ else{t=d.glu>=200?['Perlu evaluasi segera bila bergejala','warn']:['Tidak dapat dikategorikan dari GDS saja','info'];ex='Gula darah sewaktu ≥200 mg/dL dapat memenuhi kriteria diabetes bila disertai gejala klasik; tanpa gejala perlu tes konfirmasi.';}
+ r.interpretations.push(['Gula darah',fmt(d.glu)+' mg/dL',t[0],t[1],ex]);}
+ if(d.chol>0){let t=child?['Gunakan rentang pediatrik','info']:d.chol<200?['Diinginkan','ok']:d.chol<240?['Borderline tinggi','warn']:['Tinggi','bad'];r.interpretations.push(['Kolesterol total',fmt(d.chol)+' mg/dL',t[0],t[1],child?'Interpretasi anak berbeda dari dewasa.':'Kategori umum kolesterol total dewasa; penilaian risiko memerlukan profil lipid lengkap dan faktor risiko.']);}
+ if(d.uric>0)r.interpretations.push(['Asam urat',fmt(d.uric)+' mg/dL','Bandingkan rentang laboratorium','info','Rentang rujukan berbeda antar laboratorium dan menurut jenis kelamin/usia. Hasil saja tidak mendiagnosis gout.']);
+ if(r.interpretations.length===0){r.interpretations.push(['Data pemeriksaan','Belum ada parameter terisi','Lengkapi data','info','Masukkan satu atau lebih hasil pengukuran.']);}
+ if(child)r.advice.push('Untuk bayi, anak dan remaja, plot berat/tinggi/IMT pada kurva pertumbuhan WHO sesuai umur dan jenis kelamin.');if(preg)r.advice.push('Ibu hamil perlu pemantauan antenatal, tekanan darah, LiLA dan kenaikan berat badan sesuai usia kehamilan.');if(r.interpretations.some(x=>x[3]==='bad'||x[3]==='warn'))r.advice.push('Ulangi pengukuran dengan teknik yang benar dan konsultasikan hasil yang berada di luar ambang kepada tenaga kesehatan.');r.advice.push('Pola makan seimbang, aktivitas fisik sesuai kemampuan, tidur cukup, dan tidak merokok mendukung kesehatan.');r.advice.push('Jangan memulai atau menghentikan obat berdasarkan simulasi ini.');
+ return r;
+}
+function render(r){current=r;$('quick').innerHTML=card('IMT',r.metrics.bmi?fmt(r.metrics.bmi,1):'—','kg/m²')+card('Tekanan darah',r.data.sys&&r.data.dia?r.data.sys+'/'+r.data.dia:'—','mmHg');
+ $('resultSub').textContent=(r.data.caseName||'Simulasi')+' · '+r.data.age+' tahun · '+new Date(r.created).toLocaleString('id-ID');
+ let html='';if(r.metrics.bmi!==undefined)html+=card('Indeks Massa Tubuh',fmt(r.metrics.bmi,1),'kg/m²');if(r.metrics.weightRange)html+=card('Rentang berat setara IMT normal',fmt(r.metrics.weightRange[0],1)+'–'+fmt(r.metrics.weightRange[1],1),'kg');if(r.data.waist)html+=card('Lingkar perut',fmt(r.data.waist),'cm');if(r.data.mua)html+=card('LiLA',fmt(r.data.mua),'cm');if(r.data.sys&&r.data.dia)html+=card('Tekanan darah',r.data.sys+'/'+r.data.dia,'mmHg');if(r.data.glu)html+=card('Gula darah',fmt(r.data.glu),'mg/dL');if(r.data.uric)html+=card('Asam urat',fmt(r.data.uric),'mg/dL');if(r.data.chol)html+=card('Kolesterol total',fmt(r.data.chol),'mg/dL');$('metrics').innerHTML=html||'<p>Belum ada angka pemeriksaan.</p>';
+ $('interpretations').innerHTML=r.interpretations.map(x=>'<div class="result"><strong>'+x[0]+' · '+x[1]+'</strong>'+status(x[2],x[3])+'<p>'+x[4]+'</p></div>').join('');$('advice').innerHTML=r.advice.map(x=>'<div class="result"><p>'+x+'</p></div>').join('');drawChart(r);}
+function drawChart(r){let c=$('chart'),ctx=c.getContext('2d'),W=c.width,H=c.height;ctx.clearRect(0,0,W,H);let vals=r.interpretations.filter(x=>x[3]==='bad'||x[3]==='warn'||x[3]==='ok');if(!vals.length){ctx.fillStyle='#64748b';ctx.fillText('Belum ada indikator untuk digambar',20,40);return}let colors={ok:'#16a36a',warn:'#d69e36',bad:'#dc5656'};let x=24,y=24,row=38;vals.slice(0,6).forEach((v,i)=>{let yy=y+i*row;ctx.fillStyle='#334155';ctx.font='bold 16px system-ui';ctx.fillText(v[0],x,yy+14);ctx.fillStyle='#edf2f4';ctx.fillRect(210,yy,W-235,16);ctx.fillStyle=colors[v[3]];ctx.fillRect(210,yy,Math.max(16,(W-235)*(v[3]==='ok'?.35:v[3]==='warn'?.65:.9)),16);ctx.fillStyle='#64748b';ctx.font='12px system-ui';ctx.fillText(v[2],210,yy+30)});$('chartLegend').textContent='Warna menunjukkan kategori edukatif dari data yang dapat diklasifikasikan; bukan skor risiko klinis gabungan.'}
+$('analyze').onclick=()=>{let r=calculate();if(r){render(r);setTab('result')}};
+$('toResult').onclick=()=>setTab('result');
+$('sample').onclick=()=>{let x={caseName:'Contoh Dewasa',age:42,sex:'male',preg:'no',gest:'',glucoseType:'fasting',weight:78,height:170,waist:96,mua:29,sys:146,dia:92,glu:112,uric:7.4,chol:218,labNote:'Contoh simulasi',notes:'Data fiktif'};keys.forEach(k=>$(k).value=x[k]??'');$('gestWrap').classList.add('hide');};
+$('clear').onclick=()=>{keys.forEach(k=>$(k).value='');$('preg').value='no';$('gestWrap').classList.add('hide');$('quick').innerHTML='';current=null};
+$('save').onclick=()=>{if(!current){alert('Lakukan analisis terlebih dahulu.');return}history.unshift(current);history=history.slice(0,100);if(persist()){alert('Hasil disimpan pada perangkat ini.');renderHistory()}};
+function renderHistory(){let el=$('historyList');if(!history.length){el.innerHTML='<p class="muted">Belum ada riwayat tersimpan.</p>';return}el.innerHTML=history.map((r,i)=>'<div class="history-item"><div><strong>'+(r.data.caseName||'Simulasi')+'</strong><div class="hint">'+new Date(r.created).toLocaleString('id-ID')+' · '+r.data.age+' tahun</div><div class="hint">'+r.interpretations.length+' indikator</div></div><div><button class="btn" data-open="'+i+'">Buka</button> <button class="btn danger" data-del="'+i+'">Hapus</button></div></div>').join('');el.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{render(history[+b.dataset.open]);setTab('result')});el.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{history.splice(+b.dataset.del,1);persist();renderHistory()})}
+function download(name,content,type){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
+$('exportOne').onclick=()=>{if(current)download('hasil-simulasi-kesehatan.json',JSON.stringify(current,null,2),'application/json');else alert('Belum ada hasil.')};
+$('exportAll').onclick=()=>download('cadangan-health-check.json',JSON.stringify(history,null,2),'application/json');
+$('importFile').onchange=async e=>{try{let a=JSON.parse(await e.target.files[0].text());if(!Array.isArray(a))throw Error();history=a.concat(history).slice(0,200);persist();renderHistory();alert('Cadangan berhasil dimuat.')}catch(err){alert('File cadangan tidak valid.')}e.target.value=''};
+$('deleteHistory').onclick=()=>{if(confirm('Hapus seluruh riwayat simulasi dari perangkat ini?')){history=[];persist();renderHistory()}};
+const quizzes=[
+{q:'Pasien dewasa tidak hamil memiliki gula darah puasa 132 mg/dL. Apa interpretasi edukatif paling tepat?',o:['Di bawah ambang diabetes','Mencapai ambang laboratorium diabetes; perlu konfirmasi klinis','Pasti diabetes tanpa pemeriksaan lain'],a:1,e:'Gula darah puasa ≥126 mg/dL merupakan ambang laboratorium diabetes. Pada kondisi tanpa gejala, diagnosis perlu konfirmasi sesuai pedoman.'},
+{q:'Anak usia 8 tahun memiliki IMT 20 kg/m². Kategori mana yang tepat?',o:['Langsung gunakan kategori obesitas dewasa','Gunakan IMT-menurut-umur dan jenis kelamin pada kurva pertumbuhan','Abaikan tinggi badan'],a:1,e:'Anak dan remaja dinilai menggunakan IMT menurut umur dan jenis kelamin, bukan batas dewasa.'},
+{q:'Ibu hamil memiliki LiLA 22 cm. Apa makna skrining?',o:['Di bawah ambang 23,5 cm; perlu evaluasi risiko KEK','Pasti mengalami penyakit tertentu','Tidak perlu ditindaklanjuti'],a:0,e:'LiLA <23,5 cm digunakan sebagai indikator risiko KEK pada ibu hamil di Indonesia dan perlu penilaian lebih lanjut.'},
+{q:'Tekanan darah dewasa terukur 150/94 mmHg sekali. Apa langkah tepat?',o:['Langsung memastikan diagnosis hipertensi','Ulangi dengan teknik benar dan lakukan evaluasi tenaga kesehatan','Abaikan hasil'],a:1,e:'Satu kali pengukuran tidak cukup untuk diagnosis. Ulangi pengukuran dan lakukan evaluasi.'},
+{q:'Mengapa asam urat tidak boleh dinilai dari satu angka saja?',o:['Karena satuan selalu salah','Rentang rujukan bervariasi dan angka saja tidak mendiagnosis gout','Karena tidak perlu diperiksa'],a:1,e:'Nilai asam urat harus dibandingkan dengan rentang laboratorium dan konteks klinis.'}
+];
+function showQuiz(){let q=quizzes[quizIndex%quizzes.length];answered=false;$('quiz').innerHTML='<h3>'+(quizIndex+1)+'. '+q.q+'</h3>'+q.o.map((o,i)=>'<button class="quiz-opt" data-opt="'+i+'">'+String.fromCharCode(65+i)+'. '+o+'</button>').join('')+'<div id="feedback" class="note hide"></div>';$('quiz').querySelectorAll('[data-opt]').forEach(b=>b.onclick=()=>{if(answered)return;answered=true;let ok=+b.dataset.opt===q.a;if(ok)score+=10;$('score').textContent=score;let f=$('feedback');f.classList.remove('hide');f.textContent=(ok?'Benar! +10 poin. ':'Belum tepat. ')+q.e;});}
+$('nextQuiz').onclick=()=>{quizIndex++;showQuiz()};$('resetScore').onclick=()=>{score=0;quizIndex=0;$('score').textContent=score;showQuiz()};showQuiz();renderHistory();
+let deferred=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('install').classList.remove('hide')});$('install').onclick=async()=>{if(deferred){deferred.prompt();await deferred.userChoice;deferred=null;$('install').classList.add('hide')}else alert('Gunakan menu browser lalu pilih Tambahkan ke layar utama.')}
+if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
+})();
+</script></body></html>
