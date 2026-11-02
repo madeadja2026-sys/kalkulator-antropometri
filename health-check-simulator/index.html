@@ -90,7 +90,7 @@ function load(){try{return JSON.parse(localStorage.getItem('hcs-history')||'[]')
 function persist(){try{localStorage.setItem('hcs-history',JSON.stringify(history));return true}catch(e){alert('Penyimpanan perangkat penuh atau tidak tersedia. Ekspor cadangan data.');return false}}
 function num(id){let v=$(id).value;return v===''?null:Number(v)}
 function val(id){return $(id).value}
-function fmt(n,d=1){return Number(n).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})} function esc(v){return String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]))}
+function fmt(n,d=1){return Number(n).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})} function esc(v){return String(v??'').replace(/[&<>"']/g,function(c){if(c==='&')return '&amp;';if(c==='<')return '&lt;';if(c==='>')return '&gt;';if(c==='"')return '&quot;';return '&#39;'})}
 function status(text,kind='info'){return '<span class="status '+kind+'">'+text+'</span>'}
 function card(label,value,unit,tag='',kind='info'){return '<div class="metric"><div class="label">'+label+'</div><div class="value">'+value+'</div><div class="unit">'+unit+'</div>'+(tag?status(tag,kind):'')+'</div>'}
 function setTab(id){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===id));if(id==='history')renderHistory();if(id==='result'&&current)drawChart(current)}
