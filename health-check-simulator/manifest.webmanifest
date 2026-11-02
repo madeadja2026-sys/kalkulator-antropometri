@@ -1,0 +1,11 @@
+{
+  "name": "Health Check Simulator",
+  "short_name": "Health Check",
+  "description": "Game edukasi simulasi pemeriksaan kesehatan",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f2f7f8",
+  "theme_color": "#0b766e",
+  "icons": [{"src":"./icon.svg","sizes":"any","type":"image/svg+xml","purpose":"any maskable"}]
+}
