@@ -90,7 +90,7 @@ function load(){try{return JSON.parse(localStorage.getItem('hcs-history')||'[]')
 function persist(){try{localStorage.setItem('hcs-history',JSON.stringify(history));return true}catch(e){alert('Penyimpanan perangkat penuh atau tidak tersedia. Ekspor cadangan data.');return false}}
 function num(id){let v=$(id).value;return v===''?null:Number(v)}
 function val(id){return $(id).value}
-function fmt(n,d=1){return Number(n).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})}
+function fmt(n,d=1){return Number(n).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})} function esc(v){return String(v??'').replace(/[&<>\"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','\"':'&quot;',\"'\":'&#39;'}[c]))}
 function status(text,kind='info'){return '<span class="status '+kind+'">'+text+'</span>'}
 function card(label,value,unit,tag='',kind='info'){return '<div class="metric"><div class="label">'+label+'</div><div class="value">'+value+'</div><div class="unit">'+unit+'</div>'+(tag?status(tag,kind):'')+'</div>'}
 function setTab(id){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===id));if(id==='history')renderHistory();if(id==='result'&&current)drawChart(current)}
@@ -103,6 +103,8 @@ function calculate(){
  if(d.sex==='')errors.push('Pilih jenis kelamin biologis untuk standar yang memerlukannya.');
  if(d.weight!==null&&(d.weight<=0||d.weight>400))errors.push('Berat badan tidak valid.');
  if(d.height!==null&&(d.height<=0||d.height>250))errors.push('Tinggi/panjang badan tidak valid.');
+ const limits={waist:200,mua:80,sys:300,dia:200,glu:1500,uric:40,chol:1500}; for(const [k,mx] of Object.entries(limits))if(d[k]!==null&&(d[k]<0||d[k]>mx))errors.push('Nilai '+k+' di luar batas input (maksimal '+mx+').');
+ if(d.sys!==null&&d.sys<40)errors.push('Sistolik terlalu rendah untuk rentang input simulasi; periksa kembali.'); if(d.dia!==null&&d.dia<20)errors.push('Diastolik terlalu rendah untuk rentang input simulasi; periksa kembali.');
  for(const k of ['waist','mua','sys','dia','glu','uric','chol'])if(d[k]!==null&&d[k]<0)errors.push('Nilai '+k+' tidak boleh negatif.');
  if((d.sys===null)!==(d.dia===null))errors.push('Isi sistolik dan diastolik bersama-sama.');
  if(d.glu!==null&&!d.glucoseType)errors.push('Pilih jenis pemeriksaan gula darah.');
@@ -149,7 +151,7 @@ $('toResult').onclick=()=>setTab('result');
 $('sample').onclick=()=>{let x={caseName:'Contoh Dewasa',age:42,ageUnit:'years',measurePosition:'standing',prePregWeight:'',sex:'male',preg:'no',gest:'',glucoseType:'fasting',weight:78,height:170,waist:96,mua:29,sys:146,dia:92,glu:112,uric:7.4,chol:218,labNote:'Contoh simulasi',notes:'Data fiktif'};keys.forEach(k=>$(k).value=x[k]??'');$('gestWrap').classList.add('hide');};
 $('clear').onclick=()=>{keys.forEach(k=>$(k).value='');$('preg').value='no';$('gestWrap').classList.add('hide');$('quick').innerHTML='';current=null};
 $('save').onclick=()=>{if(!current){alert('Lakukan analisis terlebih dahulu.');return}history.unshift(current);history=history.slice(0,100);if(persist()){alert('Hasil disimpan pada perangkat ini.');renderHistory()}};
-function renderHistory(){let el=$('historyList');if(!history.length){el.innerHTML='<p class="muted">Belum ada riwayat tersimpan.</p>';return}el.innerHTML=history.map((r,i)=>'<div class="history-item"><div><strong>'+(r.data.caseName||'Simulasi')+'</strong><div class="hint">'+new Date(r.created).toLocaleString('id-ID')+' · '+r.metrics.ageLabel+'</div><div class="hint">'+r.interpretations.length+' indikator</div></div><div><button class="btn" data-open="'+i+'">Buka</button> <button class="btn danger" data-del="'+i+'">Hapus</button></div></div>').join('');el.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{render(history[+b.dataset.open]);setTab('result')});el.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{history.splice(+b.dataset.del,1);persist();renderHistory()})}
+function renderHistory(){let el=$('historyList');if(!history.length){el.innerHTML='<p class="muted">Belum ada riwayat tersimpan.</p>';return}el.innerHTML=history.map((r,i)=>'<div class="history-item"><div><strong>'+esc(r.data.caseName||'Simulasi')+'</strong><div class="hint">'+new Date(r.created).toLocaleString('id-ID')+' · '+r.metrics.ageLabel+'</div><div class="hint">'+r.interpretations.length+' indikator</div></div><div><button class="btn" data-open="'+i+'">Buka</button> <button class="btn danger" data-del="'+i+'">Hapus</button></div></div>').join('');el.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{render(history[+b.dataset.open]);setTab('result')});el.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{history.splice(+b.dataset.del,1);persist();renderHistory()})}
 function download(name,content,type){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
 $('exportOne').onclick=()=>{if(current)download('hasil-simulasi-kesehatan.json',JSON.stringify(current,null,2),'application/json');else alert('Belum ada hasil.')};
 $('exportAll').onclick=()=>download('cadangan-health-check.json',JSON.stringify(history,null,2),'application/json');
