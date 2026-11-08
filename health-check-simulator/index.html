@@ -19,7 +19,18 @@ input,select,textarea{width:100%;min-width:0;border:1px solid #cbd5e1;border-rad
 .status{display:inline-block;border-radius:99px;background:#eef2f6;color:#475569;padding:3px 8px;font-size:11px;font-weight:800;margin-top:5px}.ok{background:#dcfce7;color:#166534}.warn{background:#fef3c7;color:#92400e}.bad{background:#fee2e2;color:#991b1b}.info{background:#dbeafe;color:#1e40af}
 .result-list{display:grid;gap:8px}.result{border:1px solid var(--line);border-radius:13px;padding:11px}.result strong{display:block}.result p{margin:4px 0 0;font-size:12px;color:var(--muted)}
 .note{border:1px solid #f5d78b;background:#fffbeb;color:#784b0b;padding:11px;border-radius:12px;font-size:12px;margin-top:12px}.callout{border:1px solid #fecaca;background:#fff1f2;color:#991b1b;padding:12px;border-radius:12px;font-size:13px;margin-bottom:12px}
-canvas{width:100%;height:190px;display:block}.history-item{border-bottom:1px solid var(--line);padding:10px 0;display:flex;justify-content:space-between;gap:10px}.history-item:last-child{border:0}.quiz-opt{display:block;width:100%;text-align:left;margin:8px 0;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}.quiz-opt:active{background:#e7f5f3}.muted{color:var(--muted)}.hide{display:none!important}footer{text-align:center;color:var(--muted);font-size:11px;padding:12px}
+canvas{width:100%;height:190px;display:block}.history-item{border-bottom:1px solid var(--line);padding:10px 0;display:flex;justify-content:space-between;gap:10px}.history-item:last-child{border:0}.quiz-opt{display:block;width:100%;text-align:left;margin:8px 0;padding:12px;border:1px solid var(--line);border-radius:12px;background:#fff;color:var(--ink)}.quiz-opt:active{background:#e7f5f3}.muted{color:var(--muted)}.hide{display:none!important}
+.home-hero{background:linear-gradient(125deg,#123b50,#0f766e 68%,#0e7490);color:#fff;border-radius:22px;padding:22px;position:relative;overflow:hidden;margin-bottom:14px}
+.home-hero:after{content:"✚";position:absolute;right:18px;bottom:-42px;font-size:150px;opacity:.08;font-weight:900}
+.home-hero h2{font-size:clamp(23px,4vw,32px);margin:5px 0}.home-hero p{color:#d8fffa;max-width:620px;margin:7px 0 14px}
+.home-kpis{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 0}
+.home-kpi{background:#ffffff18;border:1px solid #ffffff30;border-radius:14px;padding:11px}.home-kpi strong{display:block;font-size:24px}.home-kpi span{font-size:11px;color:#d8fffa}
+.launch-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+.launch{border:1px solid var(--line);background:#fff;border-radius:16px;padding:14px;text-align:left;cursor:pointer;color:var(--ink);min-height:112px}
+.launch .emoji{font-size:25px;display:block;margin-bottom:6px}.launch strong{display:block}.launch small{color:var(--muted);display:block;margin-top:3px}
+.progress-track{height:9px;background:#e7eef0;border-radius:99px;overflow:hidden;margin:8px 0}.progress-fill{height:100%;background:var(--teal);border-radius:99px}
+@media(max-width:560px){.launch-grid{grid-template-columns:1fr 1fr}.home-kpis{grid-template-columns:repeat(3,1fr)}.home-kpi strong{font-size:20px}}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:12px}
 @media(max-width:760px){.layout{grid-template-columns:1fr}main{padding-inline:10px}.card{padding:15px}}@media(max-width:430px){.fields{grid-template-columns:1fr}.full{grid-column:auto}.metrics{grid-template-columns:1fr 1fr}}
 @media print{header{background:white;color:var(--ink)}header p,.tabs,.actions,footer{display:none!important}main{margin:0}.panel{display:none!important}#check.panel.active{display:block!important}.layout{grid-template-columns:1fr 1fr}.card{box-shadow:none;break-inside:avoid}}
 </style>
@@ -28,9 +39,36 @@ canvas{width:100%;height:190px;display:block}.history-item{border-bottom:1px sol
 <header><div class="wrap"><div class="brand"><div class="logo">✚</div><div><div class="eyebrow">GAME EDUKASI KESEHATAN</div><h1>HEALTH CHECK SIMULATOR</h1><div>Simulasi angka pemeriksaan & analisis kesehatan</div></div></div><p>Latihan membaca hasil tekanan darah, antropometri, gula darah, asam urat dan kolesterol. Data tersimpan di perangkat ini.</p><div class="actions"><button id="install" class="btn light hide">＋ Instal aplikasi</button><button class="btn light" onclick="window.print()">Cetak ringkasan</button></div></div></header>
 <main>
 <nav class="tabs" aria-label="Menu aplikasi">
-<button class="tab active" data-tab="check">Pemeriksaan</button><button class="tab" data-tab="result">Analisis</button><button class="tab" data-tab="history">Riwayat</button><button class="tab" data-tab="game">Game kasus</button><button class="tab" data-tab="guide">Panduan</button>
+<button class="tab active" data-tab="home">Beranda</button><button class="tab" data-tab="check">Pemeriksaan</button><button class="tab" data-tab="result">Analisis</button><button class="tab" data-tab="history">Riwayat</button><button class="tab" data-tab="game">Game kasus</button><button class="tab" data-tab="guide">Panduan</button>
 </nav>
-<section id="check" class="panel active">
+<section id="home" class="panel active">
+<div class="home-hero">
+<div class="eyebrow">RUANG BELAJAR KESEHATAN INTERAKTIF</div>
+<h2>Selamat datang di Health Check Simulator</h2>
+<p>Belajar membaca hasil pemeriksaan melalui simulasi angka, kasus pasien virtual, dan ringkasan indikator kesehatan. Mulai dari pemeriksaan sederhana, lalu pelajari maknanya.</p>
+<div class="home-kpis">
+<div class="home-kpi"><strong id="homeCases">0</strong><span>Simulasi tersimpan</span></div>
+<div class="home-kpi"><strong id="homeScore">0</strong><span>Skor kuis sesi ini</span></div>
+<div class="home-kpi"><strong id="homeAge">—</strong><span>Kelompok umur terakhir</span></div>
+</div>
+<button class="btn light" data-open-tab="check">＋ Mulai simulasi</button>
+</div>
+<div class="card"><h2>Mulai belajar</h2><p class="sub">Pilih modul yang ingin dipelajari. Semua modul menggunakan data simulasi yang Anda masukkan sendiri.</p>
+<div class="launch-grid">
+<button class="launch" data-focus="sys"><span class="emoji">🩺</span><strong>Tekanan darah</strong><small>Latihan membaca sistolik dan diastolik</small></button>
+<button class="launch" data-focus="weight"><span class="emoji">⚖️</span><strong>Antropometri</strong><small>Berat, tinggi, IMT, lingkar perut, LiLA</small></button>
+<button class="launch" data-focus="glu"><span class="emoji">🧪</span><strong>Pemeriksaan lab</strong><small>Gula darah, asam urat, kolesterol</small></button>
+<button class="launch" data-open-tab="result"><span class="emoji">📊</span><strong>Analisis hasil</strong><small>Lihat interpretasi dan diagram indikator</small></button>
+<button class="launch" data-open-tab="game"><span class="emoji">🎯</span><strong>Tantangan kasus</strong><small>Uji pemahaman lewat kasus pasien virtual</small></button>
+<button class="launch" data-open-tab="history"><span class="emoji">🗂️</span><strong>Riwayat simulasi</strong><small>Buka, hapus, atau cadangkan hasil</small></button>
+</div></div>
+<div class="layout">
+<div class="card"><h2>Perjalanan belajar</h2><p class="sub">Gunakan urutan sederhana berikut untuk memahami hasil pemeriksaan.</p>
+<div class="result-list"><div class="result"><strong>01 · Masukkan data</strong><p>Pilih umur dan masukkan angka pengukuran sesuai satuan.</p></div><div class="result"><strong>02 · Pelajari interpretasi</strong><p>Perhatikan kelompok umur, kondisi khusus, dan catatan batas interpretasi.</p></div><div class="result"><strong>03 · Uji pemahaman</strong><p>Kerjakan kasus virtual dan simpan hasil latihan jika diperlukan.</p></div></div></div>
+<div class="card"><h2>Aktivitas terakhir</h2><p class="sub" id="homeLatest">Belum ada simulasi tersimpan. Coba mulai latihan pertama Anda.</p><div class="actions"><button class="btn" data-open-tab="history">Lihat riwayat</button><button class="btn" data-open-tab="guide">Buka panduan</button></div><div class="note">Catatan: aplikasi ini merupakan sarana edukasi dan skrining awal, bukan alat diagnosis atau pengganti konsultasi tenaga kesehatan.</div></div>
+</div>
+</section>
+<section id="check" class="panel">
 <div class="layout">
 <div>
 <div class="card"><h2>1. Identitas simulasi</h2><p class="sub">Gunakan kode atau nama samaran. Hindari memasukkan identitas sensitif pasien nyata.</p>
@@ -93,8 +131,11 @@ function val(id){return $(id).value}
 function fmt(n,d=1){return Number(n).toLocaleString('id-ID',{minimumFractionDigits:d,maximumFractionDigits:d})} function esc(v){return String(v??'').replace(/[&<>"']/g,function(c){if(c==='&')return '&amp;';if(c==='<')return '&lt;';if(c==='>')return '&gt;';if(c==='"')return '&quot;';return '&#39;'})}
 function status(text,kind='info'){return '<span class="status '+kind+'">'+text+'</span>'}
 function card(label,value,unit,tag='',kind='info'){return '<div class="metric"><div class="label">'+label+'</div><div class="value">'+value+'</div><div class="unit">'+unit+'</div>'+(tag?status(tag,kind):'')+'</div>'}
-function setTab(id){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===id));if(id==='history')renderHistory();if(id==='result'&&current)drawChart(current)}
+function setTab(id){document.querySelectorAll('.tab').forEach(b=>b.classList.toggle('active',b.dataset.tab===id));document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===id));if(id==='history')renderHistory();if(id==='result'&&current)drawChart(current);if(id==='home')renderHome()}
+function renderHome(){ $('homeCases').textContent=history.length; $('homeScore').textContent=score; let last=history[0]; $('homeAge').textContent=last?(last.metrics.ageBand||'Tersimpan'):'—'; $('homeLatest').textContent=last?((last.data.caseName||'Simulasi')+' · '+new Date(last.created).toLocaleString('id-ID')+' · '+(last.metrics.ageBand||'')):'Belum ada simulasi tersimpan. Coba mulai latihan pertama Anda.'; }
 document.querySelectorAll('.tab').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.tab)));
+document.querySelectorAll('[data-open-tab]').forEach(b=>b.addEventListener('click',()=>setTab(b.dataset.openTab)));
+document.querySelectorAll('[data-focus]').forEach(b=>b.addEventListener('click',()=>{setTab('check');setTimeout(()=>$(b.dataset.focus).focus(),0)}));
 $('preg').addEventListener('change',()=>$('gestWrap').classList.toggle('hide',val('preg')!=='yes'));
 function calculate(){
  const d={};keys.forEach(k=>d[k]=val(k));['age','gest','prePregWeight','weight','height','waist','mua','sys','dia','glu','uric','chol'].forEach(k=>d[k]=num(k));
@@ -150,13 +191,13 @@ $('analyze').onclick=()=>{let r=calculate();if(r){render(r);setTab('result')}};
 $('toResult').onclick=()=>setTab('result');
 $('sample').onclick=()=>{let x={caseName:'Contoh Dewasa',age:42,ageUnit:'years',measurePosition:'standing',prePregWeight:'',sex:'male',preg:'no',gest:'',glucoseType:'fasting',weight:78,height:170,waist:96,mua:29,sys:146,dia:92,glu:112,uric:7.4,chol:218,labNote:'Contoh simulasi',notes:'Data fiktif'};keys.forEach(k=>$(k).value=x[k]??'');$('gestWrap').classList.add('hide');};
 $('clear').onclick=()=>{keys.forEach(k=>$(k).value='');$('preg').value='no';$('gestWrap').classList.add('hide');$('quick').innerHTML='';current=null};
-$('save').onclick=()=>{if(!current){alert('Lakukan analisis terlebih dahulu.');return}history.unshift(current);history=history.slice(0,100);if(persist()){alert('Hasil disimpan pada perangkat ini.');renderHistory()}};
-function renderHistory(){let el=$('historyList');if(!history.length){el.innerHTML='<p class="muted">Belum ada riwayat tersimpan.</p>';return}el.innerHTML=history.map((r,i)=>'<div class="history-item"><div><strong>'+esc(r.data.caseName||'Simulasi')+'</strong><div class="hint">'+new Date(r.created).toLocaleString('id-ID')+' · '+r.metrics.ageLabel+'</div><div class="hint">'+r.interpretations.length+' indikator</div></div><div><button class="btn" data-open="'+i+'">Buka</button> <button class="btn danger" data-del="'+i+'">Hapus</button></div></div>').join('');el.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{render(history[+b.dataset.open]);setTab('result')});el.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{history.splice(+b.dataset.del,1);persist();renderHistory()})}
+$('save').onclick=()=>{if(!current){alert('Lakukan analisis terlebih dahulu.');return}history.unshift(current);history=history.slice(0,100);if(persist()){alert('Hasil disimpan pada perangkat ini.');renderHistory();renderHome()}};
+function renderHistory(){let el=$('historyList');if(!history.length){el.innerHTML='<p class="muted">Belum ada riwayat tersimpan.</p>';return}el.innerHTML=history.map((r,i)=>'<div class="history-item"><div><strong>'+esc(r.data.caseName||'Simulasi')+'</strong><div class="hint">'+new Date(r.created).toLocaleString('id-ID')+' · '+r.metrics.ageLabel+'</div><div class="hint">'+r.interpretations.length+' indikator</div></div><div><button class="btn" data-open="'+i+'">Buka</button> <button class="btn danger" data-del="'+i+'">Hapus</button></div></div>').join('');el.querySelectorAll('[data-open]').forEach(b=>b.onclick=()=>{render(history[+b.dataset.open]);setTab('result')});el.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{history.splice(+b.dataset.del,1);persist();renderHistory();renderHome()})}
 function download(name,content,type){let a=document.createElement('a'),u=URL.createObjectURL(new Blob([content],{type}));a.href=u;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(u),1000)}
 $('exportOne').onclick=()=>{if(current)download('hasil-simulasi-kesehatan.json',JSON.stringify(current,null,2),'application/json');else alert('Belum ada hasil.')};
 $('exportAll').onclick=()=>download('cadangan-health-check.json',JSON.stringify(history,null,2),'application/json');
-$('importFile').onchange=async e=>{try{let a=JSON.parse(await e.target.files[0].text());if(!Array.isArray(a))throw Error();history=a.concat(history).slice(0,200);persist();renderHistory();alert('Cadangan berhasil dimuat.')}catch(err){alert('File cadangan tidak valid.')}e.target.value=''};
-$('deleteHistory').onclick=()=>{if(confirm('Hapus seluruh riwayat simulasi dari perangkat ini?')){history=[];persist();renderHistory()}};
+$('importFile').onchange=async e=>{try{let a=JSON.parse(await e.target.files[0].text());if(!Array.isArray(a))throw Error();history=a.concat(history).slice(0,200);persist();renderHistory();renderHome();alert('Cadangan berhasil dimuat.')}catch(err){alert('File cadangan tidak valid.')}e.target.value=''};
+$('deleteHistory').onclick=()=>{if(confirm('Hapus seluruh riwayat simulasi dari perangkat ini?')){history=[];persist();renderHistory();renderHome()}};
 const quizzes=[
 {q:'Pasien dewasa tidak hamil memiliki gula darah puasa 132 mg/dL. Apa interpretasi edukatif paling tepat?',o:['Di bawah ambang diabetes','Mencapai ambang laboratorium diabetes; perlu konfirmasi klinis','Pasti diabetes tanpa pemeriksaan lain'],a:1,e:'Gula darah puasa ≥126 mg/dL merupakan ambang laboratorium diabetes. Pada kondisi tanpa gejala, diagnosis perlu konfirmasi sesuai pedoman.'},
 {q:'Anak usia 8 tahun memiliki IMT 20 kg/m². Kategori mana yang tepat?',o:['Langsung gunakan kategori obesitas dewasa','Gunakan IMT-menurut-umur dan jenis kelamin pada kurva pertumbuhan','Abaikan tinggi badan'],a:1,e:'Anak dan remaja dinilai menggunakan IMT menurut umur dan jenis kelamin, bukan batas dewasa.'},
@@ -165,7 +206,7 @@ const quizzes=[
 {q:'Mengapa asam urat tidak boleh dinilai dari satu angka saja?',o:['Karena satuan selalu salah','Rentang rujukan bervariasi dan angka saja tidak mendiagnosis gout','Karena tidak perlu diperiksa'],a:1,e:'Nilai asam urat harus dibandingkan dengan rentang laboratorium dan konteks klinis.'}
 ];
 function showQuiz(){let q=quizzes[quizIndex%quizzes.length];answered=false;$('quiz').innerHTML='<h3>'+(quizIndex+1)+'. '+q.q+'</h3>'+q.o.map((o,i)=>'<button class="quiz-opt" data-opt="'+i+'">'+String.fromCharCode(65+i)+'. '+o+'</button>').join('')+'<div id="feedback" class="note hide"></div>';$('quiz').querySelectorAll('[data-opt]').forEach(b=>b.onclick=()=>{if(answered)return;answered=true;let ok=+b.dataset.opt===q.a;if(ok)score+=10;$('score').textContent=score;let f=$('feedback');f.classList.remove('hide');f.textContent=(ok?'Benar! +10 poin. ':'Belum tepat. ')+q.e;});}
-$('nextQuiz').onclick=()=>{quizIndex++;showQuiz()};$('resetScore').onclick=()=>{score=0;quizIndex=0;$('score').textContent=score;showQuiz()};showQuiz();renderHistory();
+$('nextQuiz').onclick=()=>{quizIndex++;showQuiz()};$('resetScore').onclick=()=>{score=0;quizIndex=0;$('score').textContent=score;showQuiz();renderHome()};showQuiz();renderHistory();renderHome();
 let deferred=null;window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferred=e;$('install').classList.remove('hide')});$('install').onclick=async()=>{if(deferred){deferred.prompt();await deferred.userChoice;deferred=null;$('install').classList.add('hide')}else alert('Gunakan menu browser lalu pilih Tambahkan ke layar utama.')}
 if('serviceWorker'in navigator&&location.protocol==='https:')navigator.serviceWorker.register('./sw.js').catch(()=>{});
 })();
