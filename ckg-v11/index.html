@@ -1,0 +1,847 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0f766e">
+<meta name="description" content="Aplikasi Cek Kesehatan Gratis, rekam pasien terpadu, edukasi, pemantauan dan laporan perkembangan pasien Puskesmas Ngalupolo.">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="CKG Ngalupolo">
+<link rel="manifest" href="./manifest.webmanifest">
+<link rel="icon" href="./icons/icon.svg" type="image/svg+xml">
+
+<title>CKG & Laporan Perkembangan Pasien Ngalupolo – Versi 11</title>
+<style>
+:root{--teal:#0f766e;--navy:#153447;--muted:#607582;--line:#dbe5e8;--bg:#f2f7f7;--green:#137547;--amber:#a15c00;--red:#b42318}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--navy);font:15px system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:linear-gradient(120deg,#0f766e,#155e75);color:white;padding:22px 16px}.wrap{max-width:1100px;margin:auto;padding:14px}
+h1{font-size:22px;margin:0 0 4px}header p{margin:0;opacity:.9;font-size:13px}
+nav{display:flex;gap:7px;flex-wrap:wrap;margin:10px 0 16px}button,.btn{border:0;border-radius:10px;padding:10px 13px;background:var(--teal);color:white;font-weight:700;cursor:pointer;font:inherit}
+nav button{background:white;color:var(--teal);border:1px solid var(--line)}nav button.active{background:var(--teal);color:white}
+.panel{background:white;border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0;box-shadow:0 2px 9px #17334408}
+h2{font-size:18px;margin:0 0 13px}h3{font-size:15px;margin:15px 0 8px}
+.grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:11px}.field{min-width:0}.wide{grid-column:1/-1}
+label{display:block;font-size:12px;color:var(--muted);font-weight:700;margin-bottom:5px}
+input,select,textarea{width:100%;border:1px solid #c9d7dc;border-radius:9px;padding:10px;font:inherit;background:white;color:var(--navy)}
+textarea{min-height:65px}.hint{font-size:12px;color:var(--muted);line-height:1.5}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:13px}.secondary{background:#e7f1f1;color:#155e59}.danger{background:#fff0ef;color:var(--red)}
+.cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:9px}.metric{border:1px solid var(--line);border-radius:11px;padding:11px;min-width:0}.metric small{color:var(--muted)}.metric b{display:block;font-size:20px;margin:3px 0}
+.status{display:inline-block;padding:4px 8px;border-radius:30px;font-size:11px;font-weight:800;background:#edf2f4;color:#465966}.ok{background:#e7f6ed;color:var(--green)}.warn{background:#fff3d8;color:var(--amber)}.bad{background:#ffebe9;color:var(--red)}
+.rowresult{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid var(--line)}.rowresult:last-child{border:0}
+.chartgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}.chartbox{min-width:0;border:1px solid var(--line);padding:10px;border-radius:11px}.chartbox h3{margin:0 0 8px}
+canvas{width:100%;height:210px;display:block}
+.note{border-left:4px solid #d99b2b;background:#fff8e8;padding:10px 12px;border-radius:6px;font-size:12px;line-height:1.55}
+.hidden{display:none!important}table{width:100%;border-collapse:collapse;font-size:12px}th,td{text-align:left;padding:8px;border-bottom:1px solid var(--line);white-space:nowrap}th{color:var(--muted)}
+footer{text-align:center;color:var(--muted);font-size:11px;padding:20px}
+@media(max-width:720px){.grid{grid-template-columns:repeat(2,minmax(0,1fr))}.cards{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:430px){.grid,.chartgrid{grid-template-columns:1fr}.wrap{padding:9px}.panel{padding:12px}h1{font-size:19px}}
+@media print{body{background:white}nav,.no-print,.actions{display:none!important}.panel{box-shadow:none;break-inside:avoid}.wrap{max-width:none;padding:0}header{background:white;color:#111;padding:8px 0}}
+
+.counsel-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;margin-top:14px}
+.counsel-form .wide{grid-column:1/-1}
+.print-sheet{display:none}
+@media(max-width:600px){.counsel-form{grid-template-columns:1fr}.counsel-form .wide{grid-column:auto}}
+@media print{
+ body.print-counsel *{visibility:hidden!important}
+ body.print-counsel #counselPrint,body.print-counsel #counselPrint *{visibility:visible!important}
+ body.print-counsel #counselPrint{display:block!important;position:absolute;left:0;top:0;width:100%;padding:18px;color:#111;background:white}
+ body.print-counsel #counselPrint h2,body.print-counsel #counselPrint h3{color:#111}
+ body.print-counsel #counselPrint table{font-size:12px}
+}
+</style></head>
+<body>
+<header><div class="wrap"><h1>KALKULATOR CKG & MONITORING KESEHATAN</h1><p>PUSKESMAS NGALUPOLO · Versi 11 · Laporan perkembangan pasien</p><button id="pwaInstallBtn" type="button" style="margin:8px 0 0;padding:10px 15px;border:1px solid #ffffff88;border-radius:10px;background:#ffffff;color:#0f766e;font-weight:700;cursor:pointer">＋ Instal / Petunjuk aplikasi</button></div></header>
+<div class="wrap">
+<nav class="no-print"><button class="active" data-tab="input">Input & Penilaian</button><button data-tab="charts">Diagram & Kurva</button><button data-tab="diet">Konseling & Diet</button><button data-tab="recon">Rekonsiliasi Obat Pasien</button><button data-tab="pharma">Farmakoterapi</button><button data-tab="education">Edukasi Penyakit</button><button data-tab="followup">Pantau Pasien</button><button data-tab="dashboard">Dashboard Petugas</button><button data-tab="record">Rekam Pasien Terpadu</button><button data-tab="report">Laporan Perkembangan</button><button data-tab="history">Riwayat & Cadangan</button></nav>
+<section id="input" class="tab">
+<div class="panel"><h2>A. Identitas pasien</h2><div class="grid">
+<div class="field"><label>Nama pasien</label><input id="name" placeholder="Nama lengkap"></div>
+<div class="field"><label>No. RM / kode pasien</label><input id="mr" placeholder="Kode (disarankan)"></div>
+<div class="field"><label>Tanggal pemeriksaan</label><input id="date" type="date"></div>
+<div class="field"><label>Umur (tahun)</label><input id="age" type="number" min="18" max="120"></div>
+<div class="field"><label>Jenis kelamin</label><select id="sex"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
+<div class="field"><label>Status kehamilan</label><select id="preg"><option value="no">Tidak / tidak diketahui</option><option value="yes">Ya</option></select></div>
+</div></div>
+<div class="panel"><h2>B. Antropometri dan tanda vital</h2><div class="grid">
+<div class="field"><label>Berat badan (kg)</label><input id="weight" type="number" step=".1"></div>
+<div class="field"><label>Tinggi badan (cm)</label><input id="height" type="number" step=".1"></div>
+<div class="field"><label>Lingkar perut (cm)</label><input id="waist" type="number" step=".1"></div>
+<div class="field"><label>Tekanan sistolik (mmHg)</label><input id="sys" type="number"></div>
+<div class="field"><label>Tekanan diastolik (mmHg)</label><input id="dia" type="number"></div>
+<div class="field"><label>Saturasi oksigen (%)</label><input id="spo" type="number"></div>
+<div class="field"><label>Suhu tubuh (°C)</label><input id="temp" type="number" step=".1"></div>
+<div class="field"><label>Nadi (x/menit)</label><input id="pulse" type="number"></div>
+</div></div>
+<div class="panel"><h2>C. Pemeriksaan laboratorium sederhana</h2><div class="grid">
+<div class="field"><label>Jenis pemeriksaan gula</label><select id="gtype"><option value="puasa">Gula darah puasa</option><option value="sewaktu">Gula darah sewaktu</option><option value="2jam">2 jam setelah makan / TTGO</option></select></div>
+<div class="field"><label>Gula darah (mg/dL)</label><input id="glucose" type="number"></div>
+<div class="field"><label>Kolesterol total (mg/dL)</label><input id="chol" type="number"></div>
+<div class="field"><label>Asam urat (mg/dL)</label><input id="uric" type="number" step=".1"></div>
+<div class="field"><label>Merokok</label><select id="smoke"><option value="no">Tidak</option><option value="yes">Ya</option></select></div>
+<div class="field"><label>Riwayat diabetes</label><select id="diabhx"><option value="no">Tidak diketahui / tidak</option><option value="yes">Ya</option></select></div>
+<div class="field"><label>Riwayat hipertensi</label><select id="hyphx"><option value="no">Tidak diketahui / tidak</option><option value="yes">Ya</option></select></div>
+<div class="field"><label>Riwayat penyakit ginjal/jantung/stroke</label><select id="cvdhx"><option value="no">Tidak diketahui / tidak</option><option value="yes">Ya</option></select></div>
+<div class="field"><label>Gejala TBC (batuk / demam / keringat malam / BB turun)</label><select id="tb" ><option value="no">Tidak ada yang diketahui</option><option value="yes">Ada minimal satu</option></select></div>
+<div class="field"><label>Kontak erat pasien TBC</label><select id="contact"><option value="no">Tidak diketahui / tidak</option><option value="yes">Ya</option></select></div>
+<div class="field wide"><label>Keluhan, riwayat obat, dan catatan petugas</label><textarea id="notes" placeholder="Tuliskan konteks klinis, obat yang digunakan, hasil pemeriksaan ulang, dan lain-lain"></textarea></div>
+</div><div class="actions"><button id="assess">Nilai hasil pemeriksaan</button><button id="save" class="secondary">Simpan kunjungan</button><button id="clear" class="secondary">Kosongkan</button></div>
+<p class="hint">Versi ini ditujukan untuk skrining dewasa usia ≥18 tahun. Bukan untuk menilai anak/remaja atau status gizi ibu hamil. Gunakan standar khusus untuk kelompok tersebut.</p></div>
+<div id="result" class="panel hidden"><h2>D. Hasil dan kesimpulan</h2><div id="cards" class="cards"></div><h3>Interpretasi parameter</h3><div id="interpret"></div><h3>Kesimpulan skrining</h3><p id="conclusion"></p><h3>Rekomendasi tindak lanjut</h3><div id="advice"></div><div class="note" style="margin-top:12px"><b>Batas penggunaan:</b> Hasil ini bukan diagnosis, bukan penentu tunggal terapi, dan tidak menghasilkan resep/dosis obat. Konfirmasi pengukuran abnormal dan pertimbangkan kondisi klinis, obat, riwayat, serta pedoman resmi. Keputusan diagnosis dan pengobatan dilakukan tenaga kesehatan berwenang.</div><div class="actions no-print"><button onclick="window.print()">Cetak / Simpan PDF</button></div></div>
+</section>
+<section id="charts" class="tab hidden"><div class="panel"><h2>Diagram dan kurva perkembangan</h2><div class="field" style="max-width:450px"><label>Pilih pasien</label><select id="patient"><option value="">Semua pasien</option></select></div><p class="hint">Kurva menampilkan hasil kunjungan tersimpan menurut tanggal. Grafik umur dan berat badan menunjukkan data pasien, bukan kurva pertumbuhan baku. Untuk anak/remaja diperlukan kurva WHO berdasarkan umur dan jenis kelamin.</p><div class="chartgrid">
+<div class="chartbox"><h3>Tekanan darah</h3><canvas id="bp"></canvas></div><div class="chartbox"><h3>Umur & berat badan</h3><canvas id="bw"></canvas></div>
+<div class="chartbox"><h3>IMT</h3><canvas id="bmi"></canvas></div><div class="chartbox"><h3>Gula darah</h3><canvas id="glu"></canvas></div>
+<div class="chartbox"><h3>Kolesterol total</h3><canvas id="cho"></canvas></div><div class="chartbox"><h3>Asam urat</h3><canvas id="uri"></canvas></div>
+</div>
+<div class="note" style="margin-top:12px"><b>Cara membaca grafik:</b> area berwarna hijau/biru transparan menunjukkan rentang acuan atau sasaran skrining; titik di bawah atau di atas area perlu ditinjau bersama hasil penilaian dan kondisi klinis. Tekanan darah menampilkan dua rentang acuan terpisah pada sumbu yang sama: sistolik 90–119 dan diastolik 60–79 mmHg. IMT 18,5–22,9 adalah rentang normal dewasa Asia. Gula darah menampilkan area acuan hanya bila semua kunjungan terpilih memakai jenis tes yang sama: GDP 70–99 atau 2 jam 70–139 mg/dL; GDS tidak memiliki satu rentang normal diagnostik universal. Kolesterol total <200 mg/dL adalah kategori diinginkan. Asam urat menggunakan kisaran umum menurut jenis kelamin, tetapi rentang laboratorium dapat berbeda. Berat badan dan umur tidak memiliki satu area normal universal tanpa kurva/rujukan yang sesuai tinggi badan, umur, dan jenis kelamin.</div>
+</div></section>
+<section id="diet" class="tab hidden">
+<div class="panel"><h2>Pola makan, pengaturan diet & bahan konseling</h2>
+<p class="hint">Rekomendasi edukasi otomatis berdasarkan hasil skrining yang sedang tampil/diinput. Pilih pasien dan tekan "Nilai hasil pemeriksaan" terlebih dahulu. Ini panduan promotif umum, bukan resep diet klinis individual.</p>
+<div id="dietContent"><p class="hint">Belum ada hasil penilaian. Silakan isi data pasien dan tekan Nilai hasil pemeriksaan.</p></div>
+</div></section>
+<section id="history" class="tab hidden"><div class="panel"><h2>Riwayat pemeriksaan</h2><p class="hint">Data hanya tersimpan pada browser/perangkat ini. Gunakan ekspor JSON secara berkala. Jangan gunakan nama lengkap bila tidak diperlukan; lindungi kerahasiaan data pasien.</p><div class="actions no-print"><button id="export">Unduh cadangan JSON</button><label class="btn secondary">Impor JSON<input id="import" type="file" accept=".json,application/json" hidden></label><button id="erase" class="danger">Hapus seluruh data</button></div><div style="overflow-x:auto"><table><thead><tr><th>Tanggal</th><th>Pasien/kode</th><th>Umur</th><th>BB</th><th>IMT</th><th>TD</th><th>Gula</th><th>Aksi</th></tr></thead><tbody id="rows"></tbody></table></div></div></section>
+
+<section id="recon" class="tab hidden">
+<div class="panel"><h2>Rekonsiliasi Obat Pasien</h2>
+<div class="field"><label>Ambil identitas dari daftar pasien CKG</label><select id="prLinkPatient"><option value="">Pilih pasien CKG (opsional)</option></select></div>
+<p class="hint">Format untuk mencocokkan seluruh obat yang digunakan pasien (obat resep, obat dari fasilitas lain, obat bebas, vitamin/herbal) dengan terapi yang direncanakan. Tujuannya menemukan obat yang terlewat, duplikasi, perbedaan dosis/cara pakai, ketidakpatuhan, alergi, dan efek samping untuk tindak lanjut tenaga kesehatan.</p>
+<div class="grid">
+<div class="field"><label>Tanggal rekonsiliasi</label><input id="prDate" type="date"></div>
+<div class="field"><label>Nama pasien / kode</label><input id="prName" placeholder="Nama atau kode pasien"></div>
+<div class="field"><label>No. RM / identitas pasien</label><input id="prMR" placeholder="Nomor rekam medis"></div>
+<div class="field"><label>Tanggal lahir / umur</label><input id="prAge" placeholder="Umur atau tanggal lahir"></div>
+<div class="field"><label>Jenis kelamin</label><select id="prSex"><option value="">Pilih</option><option>Laki-laki</option><option>Perempuan</option></select></div>
+<div class="field"><label>Poli / unit asal</label><input id="prUnit" placeholder="Poli umum, TB, PTM, dll."></div>
+<div class="field"><label>Diagnosis / indikasi</label><input id="prDiagnosis" placeholder="Diagnosis atau alasan pengobatan"></div>
+<div class="field"><label>Tenaga kesehatan / dokter penanggung jawab</label><input id="prPrescriber" placeholder="Nama petugas/dokter"></div>
+<div class="field wide"><label>Alergi obat dan reaksi yang pernah dialami</label><textarea id="prAllergy" placeholder="Nama obat dan reaksi; tulis 'tidak diketahui' bila belum dapat dipastikan"></textarea></div>
+</div>
+<div class="panel" style="margin-top:12px"><h3>Daftar obat yang digunakan pasien</h3><p class="hint">Masukkan setiap obat, termasuk yang dibawa pasien dari rumah atau diperoleh dari fasilitas lain. Kolom “aturan pakai saat ini” diisi sesuai pengakuan pasien/kemasan/resep yang dibawa.</p>
+<div style="overflow-x:auto"><table><thead><tr><th>Nama obat, kekuatan</th><th>Dosis & aturan pakai saat ini</th><th>Rute</th><th>Asal obat</th><th>Indikasi</th><th>Kepatuhan / masalah</th><th>Efek samping / catatan</th><th class="no-print">Aksi</th></tr></thead><tbody id="prMedRows"></tbody></table></div>
+<div class="actions no-print"><button type="button" id="prAddMed" class="secondary">+ Tambah obat</button></div></div>
+<div class="grid">
+<div class="field wide"><label>Hasil telaah / masalah terkait obat (DRP)</label><textarea id="prProblems" placeholder="Contoh: kemungkinan duplikasi, dosis berbeda dari resep, obat tidak diminum, efek samping, interaksi yang perlu dikaji, obat tanpa indikasi jelas..."></textarea></div>
+<div class="field wide"><label>Rekomendasi / rencana tindak lanjut</label><textarea id="prPlan" placeholder="Contoh: konfirmasi kepada dokter, klarifikasi aturan pakai, edukasi kepatuhan, pemantauan efek samping, rujuk bila diperlukan..."></textarea></div>
+<div class="field"><label>Status tindak lanjut</label><select id="prStatus"><option>Perlu ditindaklanjuti</option><option>Sudah diklarifikasi</option><option>Sudah ditindaklanjuti</option><option>Perlu pemantauan lanjutan</option></select></div>
+<div class="field"><label>Petugas yang melakukan rekonsiliasi</label><input id="prOfficer" placeholder="Nama dan profesi petugas"></div>
+<div class="field"><label>Jadwal evaluasi / kontrol berikutnya</label><input id="prFollow" type="date"></div>
+<div class="field"><label>Konfirmasi pasien / keluarga</label><select id="prConfirm"><option value="">Pilih</option><option>Sudah dikonfirmasi</option><option>Belum dapat dikonfirmasi</option><option>Dikonfirmasi dengan keluarga</option></select></div>
+<div class="field wide"><label>Catatan tambahan</label><textarea id="prNotes" placeholder="Catatan konseling, pemahaman pasien, hambatan akses obat, dan hal penting lainnya"></textarea></div>
+</div>
+<div class="actions no-print"><button id="prSave">Simpan rekonsiliasi pasien</button><button id="prReset" class="secondary">Kosongkan form</button><button id="prPrint" class="secondary">Cetak lembar pasien</button><button id="prExport" class="secondary">Unduh cadangan JSON</button><label class="btn secondary">Impor cadangan<input id="prImport" type="file" accept=".json,application/json" hidden></label></div>
+<p class="hint">Penting: rekonsiliasi adalah proses verifikasi, bukan instruksi untuk menghentikan atau mengubah obat secara mandiri. Perubahan terapi harus dikonfirmasi oleh dokter/tenaga kesehatan berwenang. Lindungi kerahasiaan identitas dan data pengobatan pasien.</p>
+</div>
+<div class="panel"><h2>Riwayat Rekonsiliasi Obat Pasien</h2><div class="grid no-print"><div class="field"><label>Cari pasien / No. RM</label><input id="prSearch" placeholder="Nama atau nomor RM"></div><div class="field"><label>Filter status</label><select id="prFilter"><option value="">Semua status</option><option>Perlu ditindaklanjuti</option><option>Sudah diklarifikasi</option><option>Sudah ditindaklanjuti</option><option>Perlu pemantauan lanjutan</option></select></div></div>
+<div style="overflow-x:auto"><table><thead><tr><th>Tanggal</th><th>Pasien / No. RM</th><th>Diagnosis</th><th>Jumlah obat</th><th>Status tindak lanjut</th><th>Evaluasi berikutnya</th><th class="no-print">Aksi</th></tr></thead><tbody id="prRows"></tbody></table></div></div>
+</section>
+
+<section id="pharma" class="tab hidden">
+ <div class="panel">
+  <h2>Modul Informasi Farmakoterapi</h2>
+  <p class="hint">Bahan bantu telaah dan pemantauan terapi, bukan mesin pemilih obat atau pembuat resep. Pilihan obat, dosis, kontraindikasi, dan perubahan terapi wajib diverifikasi dengan pedoman nasional/daerah terbaru, Fornas, formularium, kondisi pasien, fungsi ginjal/hati, kehamilan, alergi, serta kewenangan klinis.</p>
+  <div class="grid">
+   <div class="field"><label>Pilih kondisi/kelompok terapi</label><select id="phTopic"><option value="hipertensi">Hipertensi</option><option value="diabetes">Diabetes melitus</option><option value="dislipidemia">Dislipidemia</option><option value="hiperurisemia">Hiperurisemia / gout</option><option value="obesitas">Obesitas</option><option value="gizikurang">Gizi kurang</option><option value="tbc">Tuberkulosis (TBC)</option></select></div>
+   <div class="field"><label>Pasien / No. RM (opsional)</label><input id="phPatient" placeholder="Kode pasien untuk catatan telaah"></div>
+  </div>
+  <div id="phInfo" class="panel" style="margin-top:12px"></div>
+  <h3>Catatan telaah farmakoterapi pasien</h3>
+  <div class="grid">
+   <div class="field wide"><label>Terapi yang sedang dijalani / regimen terverifikasi</label><textarea id="phCurrent" placeholder="Catat sesuai resep, rekam medis, atau konfirmasi dokter."></textarea></div>
+   <div class="field wide"><label>Parameter efektivitas yang dipantau</label><textarea id="phEffect" placeholder="Misalnya tekanan darah, HbA1c/gula darah, profil lipid, gejala, berat badan, atau hasil pemeriksaan sesuai kondisi."></textarea></div>
+   <div class="field wide"><label>Keamanan, kepatuhan, dan masalah terkait obat</label><textarea id="phSafety" placeholder="Alergi, efek samping, interaksi potensial, penggunaan tidak teratur, akses obat, dan lain-lain."></textarea></div>
+   <div class="field wide"><label>Hasil klarifikasi / rencana tindak lanjut</label><textarea id="phPlan" placeholder="Tuliskan hasil komunikasi dengan dokter/tenaga kesehatan dan jadwal pemantauan."></textarea></div>
+   <div class="field"><label>Petugas</label><input id="phOfficer"></div><div class="field"><label>Tanggal telaah</label><input id="phDate" type="date"></div>
+  </div>
+  <div class="actions no-print"><button id="phSave">Simpan catatan telaah</button><button id="phPrint" class="secondary">Cetak telaah</button></div>
+  <p class="hint">Catatan disimpan lokal pada perangkat ini dan berdasarkan kode pasien bila diisi. Modul ini tidak memberi rekomendasi obat atau dosis otomatis.</p>
+ </div>
+</section>
+<section id="education" class="tab hidden">
+ <div class="panel">
+  <h2>Modul Edukasi Penyakit</h2>
+  <p class="hint">Materi edukasi singkat untuk konseling pasien dan keluarga. Sesuaikan bahasa, kemampuan, budaya, kondisi klinis, serta instruksi tenaga kesehatan yang menangani.</p>
+  <div class="field" style="max-width:480px"><label>Pilih topik edukasi</label><select id="eduTopic"><option value="hipertensi">Hipertensi</option><option value="diabetes">Diabetes</option><option value="dislipidemia">Dislipidemia</option><option value="hiperurisemia">Hiperurisemia / asam urat</option><option value="obesitas">Obesitas</option><option value="gizikurang">Gizi kurang</option><option value="tbc">Tuberkulosis (TBC)</option></select></div>
+  <div id="eduContent" class="panel" style="margin-top:12px"></div>
+  <div class="actions no-print"><button id="eduPrint">Cetak bahan edukasi</button></div>
+ </div>
+</section>
+<section id="followup" class="tab hidden">
+ <div class="panel">
+  <h2>Pemantauan Pasien Antar-Kunjungan</h2>
+  <p class="hint">Pilih kode pasien yang sudah memiliki kunjungan tersimpan, lalu catat pemeriksaan berikutnya. Aplikasi membandingkan nilai awal dengan kunjungan terbaru. Pastikan jenis pemeriksaan gula darah sama saat membandingkan.</p>
+  <div class="grid">
+   <div class="field"><label>Pilih pasien dari riwayat CKG</label><select id="fuPatient"><option value="">Pilih pasien</option></select></div>
+   <div class="field"><label>Tanggal kunjungan berikutnya</label><input id="fuDate" type="date"></div>
+   <div class="field"><label>Berat badan (kg)</label><input id="fuWeight" type="number" step=".1"></div>
+   <div class="field"><label>Tekanan sistolik (mmHg)</label><input id="fuSys" type="number"></div>
+   <div class="field"><label>Tekanan diastolik (mmHg)</label><input id="fuDia" type="number"></div>
+   <div class="field"><label>Gula darah (mg/dL)</label><input id="fuGlucose" type="number"></div>
+   <div class="field"><label>Jenis pemeriksaan gula</label><select id="fuGtype"><option value="puasa">Gula darah puasa</option><option value="sewaktu">Gula darah sewaktu</option><option value="2jam">2 jam setelah makan / TTGO</option></select></div>
+   <div class="field"><label>Kolesterol total (mg/dL)</label><input id="fuChol" type="number"></div>
+   <div class="field"><label>Asam urat (mg/dL)</label><input id="fuUric" type="number" step=".1"></div>
+   <div class="field wide"><label>Perubahan keluhan, kepatuhan obat, dan hasil evaluasi</label><textarea id="fuNotes"></textarea></div>
+   <div class="field wide"><label>Rencana tindak lanjut / jadwal berikutnya</label><textarea id="fuPlan"></textarea></div>
+  </div>
+  <div class="actions no-print"><button id="fuSave">Simpan kunjungan lanjutan</button><button id="fuCompare" class="secondary">Bandingkan dengan pemeriksaan pertama</button></div>
+  <div id="fuResult" class="panel hidden"></div>
+ </div>
+ <div class="panel"><h3>Riwayat kunjungan lanjutan</h3><div style="overflow-x:auto"><table><thead><tr><th>Tanggal</th><th>Pasien/kode</th><th>BB</th><th>TD</th><th>Gula</th><th>Kolesterol</th><th>Asam urat</th><th>Aksi</th></tr></thead><tbody id="fuRows"></tbody></table></div></div>
+</section>
+<section id="dashboard" class="tab hidden">
+ <div class="panel">
+  <h2>Dashboard Monitoring Petugas</h2>
+  <p class="hint">Ringkasan dihitung dari data yang tersimpan pada perangkat/browser ini. Angka bukan capaian program resmi sebelum diverifikasi dan direkap sesuai definisi indikator Puskesmas.</p>
+  <div class="cards" id="dashCards"></div>
+  <h3>Distribusi risiko skrining</h3><div id="dashRisk"></div>
+  <h3>Hasil konseling dan tindak lanjut</h3><div id="dashActions"></div>
+  <div class="actions no-print"><button id="dashRefresh">Perbarui dashboard</button><button id="dashPrint" class="secondary">Cetak dashboard</button></div>
+ </div>
+</section>
+
+
+<section id="record" class="tab hidden">
+ <div class="panel">
+  <h2>Rekam Pemantauan Pasien Terpadu</h2>
+  <p class="hint">Pilih satu pasien untuk melihat seluruh catatan CKG, rekonsiliasi obat, konseling, telaah farmakoterapi, dan kunjungan lanjutan pada perangkat ini. Penghubung utama menggunakan No. RM/kode pasien; bila tidak tersedia, nama pasien digunakan. Pastikan kode konsisten pada setiap modul.</p>
+  <div class="grid">
+   <div class="field"><label>Pilih pasien</label><select id="recordPatient"><option value="">Pilih pasien</option></select></div>
+   <div class="field"><label>Identitas terpilih</label><input id="recordIdentity" readonly placeholder="No. RM/kode atau nama pasien"></div>
+  </div>
+  <div class="actions no-print">
+   <button id="recordRefresh">Perbarui rekam pasien</button>
+   <button id="recordExport" class="secondary">Ekspor rekam pasien ini</button>
+   <button id="recordPrint" class="secondary">Cetak ringkasan pasien</button>
+  </div>
+  <div id="recordSummary" class="cards"></div>
+  <h3>Linimasa pemantauan pasien</h3>
+  <div id="recordTimeline"><p class="hint">Pilih pasien untuk menampilkan riwayat terhubung.</p></div>
+  <h3>Ringkasan klinis pemeriksaan</h3>
+  <div id="recordClinical"></div>
+  <div class="note"><b>Catatan privasi:</b> gunakan kode/No. RM sesuai kebijakan fasilitas, batasi akses perangkat, dan jangan membagikan file cadangan tanpa perlindungan. Data lokal tidak otomatis tersinkron ke perangkat lain.</div>
+ </div>
+</section>
+
+
+<section id="report" class="tab hidden">
+ <div class="panel">
+  <h2>Laporan Perkembangan Pasien</h2>
+  <p class="hint">Laporan merangkum pemeriksaan CKG, kunjungan lanjutan, rekonsiliasi obat, konseling, dan telaah farmakoterapi. Pilih pasien dan periode. Perbandingan hanya dilakukan pada parameter yang tersedia; jenis pemeriksaan gula darah harus sama.</p>
+  <div class="grid">
+   <div class="field"><label>Pasien</label><select id="rpPatient"><option value="">Pilih pasien</option></select></div>
+   <div class="field"><label>Periode laporan</label><select id="rpMode"><option value="all">Seluruh riwayat</option><option value="month">Bulan tertentu</option><option value="range">Rentang tanggal</option></select></div>
+   <div class="field" id="rpMonthWrap"><label>Bulan laporan</label><input id="rpMonth" type="month"></div>
+   <div class="field hidden" id="rpFromWrap"><label>Dari tanggal</label><input id="rpFrom" type="date"></div>
+   <div class="field hidden" id="rpToWrap"><label>Sampai tanggal</label><input id="rpTo" type="date"></div>
+  </div>
+  <div class="actions no-print"><button id="rpGenerate">Buat laporan</button><button id="rpPrint" class="secondary">Cetak / Simpan PDF</button><button id="rpExport" class="secondary">Ekspor laporan JSON</button></div>
+ </div>
+ <div id="rpOutput" class="panel">
+  <p class="hint">Pilih pasien dan tekan Buat laporan.</p>
+ </div>
+</section>
+
+<footer>Alat bantu skrining dan pemantauan · Bukan pengganti penilaian klinis</footer></div>
+<script>
+const $=id=>document.getElementById(id),keys=['name','mr','date','age','sex','preg','weight','height','waist','sys','dia','spo','temp','pulse','gtype','glucose','chol','uric','smoke','diabhx','hyphx','cvdhx','tb','contact','notes'];
+function readSaved(){try{return JSON.parse(localStorage.getItem('ckg_ngalupolo_v2')||'[]')}catch(e){return []}}
+let data=readSaved(),current=null;
+$('date').value=new Date().toISOString().slice(0,10);
+document.querySelectorAll('nav button').forEach(b=>b.onclick=()=>{document.querySelectorAll('nav button').forEach(x=>x.classList.toggle('active',x===b));document.querySelectorAll('.tab').forEach(x=>x.classList.toggle('hidden',x.id!==b.dataset.tab));if(b.dataset.tab==='charts')draw();if(b.dataset.tab==='history')renderHistory();if(b.dataset.tab==='diet')renderDiet();if(b.dataset.tab==='recon')prRender();if(b.dataset.tab==='pharma')phRender();if(b.dataset.tab==='education')eduRender();if(b.dataset.tab==='followup')fuRender();if(b.dataset.tab==='dashboard')dashRender();if(b.dataset.tab==='report')rpPopulate()});
+const n=id=>$(id).value===''?null:Number($(id).value), f=x=>x==null?'—':Number(x).toFixed(1).replace('.0','');
+const status=(text,cls)=>`<span class="status ${cls}">${text}</span>`;
+function classify(){
+ let age=n('age'),w=n('weight'),h=n('height'),bmi=w&&h?w/((h/100)**2):null,s=n('sys'),d=n('dia'),g=n('glucose'),c=n('chol'),u=n('uric'),sex=$('sex').value;
+ if(age!==null&&(age<18||age>120)){alert('Versi ini hanya untuk usia dewasa ≥18 tahun.');return}
+ if($('preg').value==='yes')alert('Kehamilan terdeteksi: IMT, tekanan darah, dan parameter lain perlu interpretasi dengan standar antenatal. Jangan gunakan kategori IMT dewasa biasa untuk keputusan kehamilan.');
+ let btxt=bmi==null?'Belum diisi':bmi<18.5?'Berat badan kurang':bmi<23?'Rentang normal (Asia)':bmi<25?'Berat badan berlebih':'Obesitas (acuan Asia)';
+ let bcls=bmi==null?'':bmi<18.5||bmi>=25?'warn':bmi>=23?'warn':'ok';
+ let bp=s==null||d==null?['Belum diisi','']:s>=180||d>=120?['Sangat tinggi – evaluasi segera','bad']:s>=140||d>=90?['Tinggi – perlu konfirmasi','bad']:s>=130||d>=80?['Meningkat – perlu evaluasi','warn']:s>=120&&d<80?['Tekanan sistolik meningkat','warn']:['Dalam rentang normal','ok'];
+ let glu=g==null?['Belum diisi','']: $('gtype').value==='puasa'?(g>=126?['≥126: diabetes mungkin – perlu konfirmasi','bad']:g>=100?['100–125: glukosa puasa terganggu','warn']:['Di bawah 100','ok']):$('gtype').value==='2jam'?(g>=200?['≥200: diabetes mungkin – perlu konfirmasi','bad']:g>=140?['140–199: toleransi glukosa terganggu','warn']:['Di bawah 140','ok']):(g>=200?['GDS ≥200: evaluasi, terutama bila gejala klasik','bad']:['GDS tidak mencapai ambang 200','ok']);
+ let ch=c==null?['Belum diisi','']:c>=240?['Tinggi (≥240)','bad']:c>=200?['Batas tinggi (200–239)','warn']:['Diinginkan (<200)','ok'];
+ let ur=u==null?['Belum diisi','']:u>(sex==='L'?7.2:6.0)?['Di atas kisaran rujukan umum','warn']:['Tidak di atas ambang umum','ok'];
+ let waist=n('waist'),waistHigh=waist!==null&&(sex==='L'?waist>=90:waist>=80);
+ let items=[['IMT',bmi==null?'—':f(bmi)+' kg/m²',btxt,bcls],['Tekanan darah',s==null||d==null?'—':s+'/'+d+' mmHg',bp[0],bp[1]],['Gula darah',g==null?'—':g+' mg/dL',glu[0],glu[1]],['Kolesterol total',c==null?'—':c+' mg/dL',ch[0],ch[1]],['Asam urat',u==null?'—':u+' mg/dL',ur[0],ur[1]],['Lingkar perut',waist==null?'—':waist+' cm',waist==null?'Belum diisi':waistHigh?'Risiko lingkar perut meningkat':'Di bawah ambang risiko',waistHigh?'warn':'ok']];
+ let urgent=(s>=180||d>=120)||(n('spo')!==null&&n('spo')<90);
+ let tb=$('tb').value==='yes'||$('contact').value==='yes';
+ let rec=[];
+ if(urgent)rec.push('Prioritas evaluasi segera. Ulangi tanda vital bila aman; bila disertai nyeri dada, sesak berat, defisit neurologis, penurunan kesadaran, atau kondisi gawat, lakukan tata laksana kegawatdaruratan dan rujuk sesuai prosedur.');
+ if(s!==null&&d!==null&&(s>=140||d>=90))rec.push('Ulangi tekanan darah dengan manset sesuai ukuran dan teknik benar setelah istirahat. Jadwalkan konfirmasi/penilaian dokter; satu hasil skrining tidak cukup untuk menetapkan hipertensi.');
+ if(glu[1]==='bad'||glu[1]==='warn')rec.push('Lakukan evaluasi glukosa sesuai kondisi: konfirmasi dengan pemeriksaan laboratorium yang sesuai (GDP/TTGO/HbA1c) dan gejala. GDS ≥200 mg/dL dengan gejala klasik memerlukan evaluasi klinis.');
+ if(ch[1]==='bad'||ch[1]==='warn')rec.push('Nilai profil lipid lengkap dan risiko kardiovaskular total (usia, tekanan darah, merokok, diabetes, penyakit ginjal/jantung/stroke). Kolesterol total saja tidak menentukan kebutuhan obat.');
+ if(ur[1]==='warn')rec.push('Tinjau keluhan, fungsi ginjal, obat, hidrasi, dan rentang rujukan laboratorium. Asam urat tinggi tanpa gejala tidak otomatis memerlukan obat.');
+ if(bmi!==null&&bmi<18.5)rec.push('Evaluasi status gizi, asupan, penurunan berat badan, dan penyakit penyerta.');
+ if(bmi!==null&&bmi>=23||waistHigh)rec.push('Konseling pola makan seimbang, aktivitas fisik, berhenti merokok, dan pemantauan berat badan serta lingkar perut.');
+ if(tb)rec.push('Skrining TBC/faktor kontak positif: tindak lanjuti sesuai alur program TBC nasional; lakukan pemeriksaan klinis dan pemeriksaan bakteriologis seperti TCM bila diindikasikan. Batuk tidak harus menunggu dua minggu bila ada gejala lain atau kontak.');
+ if(n('spo')!==null&&n('spo')<95)rec.push('SpO₂ <95%: periksa ulang dengan teknik benar dan evaluasi gejala pernapasan; nilai lebih rendah atau kondisi klinis memburuk memerlukan penilaian segera.');
+ if(n('temp')!==null&&n('temp')>=38)rec.push('Demam: evaluasi penyebab dan kondisi klinis, termasuk kemungkinan infeksi/TBC sesuai gejala.');
+ if($('diabhx').value==='yes'||$('hyphx').value==='yes'||$('cvdhx').value==='yes')rec.push('Ada riwayat penyakit: lakukan rekonsiliasi obat, evaluasi kontrol penyakit, kepatuhan, komplikasi, dan jadwal kontrol.');
+ if(!rec.length)rec.push('Tidak ditemukan ambang abnormal pada parameter yang terisi. Berikan edukasi perilaku hidup sehat dan skrining berkala. Hasil yang kosong belum dapat dinilai.');
+ let abnormal=items.filter(x=>x[3]==='bad'||x[3]==='warn').length;
+ let conclusion=urgent?'Perlu evaluasi segera':tb?'Skrining TBC/kontak positif – perlu tindak lanjut':abnormal?'Ada parameter di luar ambang skrining – perlu evaluasi':'Tidak tampak parameter utama di luar ambang pada data yang diisi';
+ current={...Object.fromEntries(keys.map(k=>[k,$(k).value])),bmi,items,rec,conclusion,id:Date.now()};
+ $('result').classList.remove('hidden');
+ $('cards').innerHTML=`<div class="metric"><small>IMT</small><b>${f(bmi)}</b>${status(btxt,bcls)}</div><div class="metric"><small>Tekanan darah</small><b>${s==null||d==null?'—':s+'/'+d}</b>${status(bp[0],bp[1])}</div><div class="metric"><small>Parameter perhatian</small><b>${abnormal}</b>${status('Dari 6 indikator','warn')}</div><div class="metric"><small>Kesimpulan</small><b style="font-size:13px">${conclusion}</b>${status(urgent?'Segera':tb||abnormal?'Tindak lanjut':'Skrining',urgent?'bad':tb||abnormal?'warn':'ok')}</div>`;
+ $('interpret').innerHTML=items.map(x=>`<div class="rowresult"><div><b>${x[0]}</b><br><span class="hint">${x[1]}</span></div>${status(x[2],x[3])}</div>`).join('');
+ $('conclusion').textContent=conclusion;$('advice').innerHTML='<ol>'+rec.map(x=>'<li style="margin:7px 0">'+x+'</li>').join('')+'</ol>';
+ renderDiet();
+ return current;
+}
+$('assess').onclick=classify;
+$('save').onclick=()=>{let r=classify();if(!r)return;if(!r.name.trim()&&!r.mr.trim()){alert('Isi nama atau kode pasien terlebih dahulu.');return}data.push(r);persist();renderHistory();fuRender();recordRender();dashRender();alert('Kunjungan tersimpan di perangkat ini.')};
+$('clear').onclick=()=>{if(confirm('Kosongkan formulir?')){keys.forEach(k=>$(k).value='');$('sex').value='L';$('preg').value='no';$('gtype').value='puasa';$('date').value=new Date().toISOString().slice(0,10);$('result').classList.add('hidden');current=null}};
+function persist(){try{localStorage.setItem('ckg_ngalupolo_v2',JSON.stringify(data));return true}catch(e){alert('Penyimpanan browser tidak tersedia atau penuh. Ekspor cadangan bila memungkinkan, lalu coba buka file langsung di Google Chrome.');return false}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function renderDiet(){
+ let bmi=current?.bmi??(n('weight')&&n('height')?n('weight')/((n('height')/100)**2):null);
+ let sex=$('sex').value,age=n('age'),preg=$('preg').value==='yes';
+ let sys=n('sys'),dia=n('dia'),g=n('glucose'),gt=$('gtype').value,ch=n('chol'),ua=n('uric');
+ let hypertension=sys>=130||dia>=80||$('hyphx').value==='yes';
+ let diabetes=(g!==null&&(gt==='puasa'&&g>=100||gt==='2jam'&&g>=140||gt==='sewaktu'&&g>=200))||$('diabhx').value==='yes';
+ let dyslipid=ch!==null&&ch>=200,hyperuric=ua!==null&&ua>(sex==='L'?7.2:6.0);
+ let overweight=bmi!==null&&bmi>=23,underweight=bmi!==null&&bmi<18.5;
+ let kidney=$('cvdhx').value==='yes';
+ let items=[];
+ items.push({title:'Pola makan seimbang untuk semua pasien',body:'Gunakan prinsip Isi Piringku: sekitar ½ piring sayur dan buah, ¼ makanan pokok, dan ¼ lauk berprotein. Utamakan pangan beragam, air putih, kebersihan pangan, dan jadwal makan teratur. Pilih bahan lokal seperti sayur daun, labu, kacang-kacangan, ikan segar, telur, jagung, ubi, dan buah sesuai ketersediaan serta kemampuan pasien.'});
+ if(hypertension)items.push({title:'Tekanan darah tinggi / risiko hipertensi',body:'Kurangi garam, penyedap tinggi natrium, ikan asin, daging olahan, mi instan, kerupuk asin, makanan kaleng, dan saus asin. Batasi garam dapur total sekitar maksimal 1 sendok teh per orang per hari dari seluruh sumber (lebih rendah bila dokter menganjurkan). Perbanyak sayur dan buah; pilih ikan segar, kacang tanpa garam, serta makanan rebus/kukus/panggang. Hindari penggunaan garam pengganti berbasis kalium tanpa persetujuan klinisi, terutama bila ada penyakit ginjal atau obat tertentu.'});
+ if(diabetes)items.push({title:'Gula darah meningkat / diabetes',body:'Atur porsi karbohidrat dan sebarkan konsumsinya secara teratur. Pilih jagung, ubi, beras merah atau nasi dengan porsi terukur; batasi minuman manis, teh/kopi bergula, sirup, kue manis, permen, dan gula tambahan. Padukan sumber karbohidrat dengan sayur, protein tanpa lemak, dan sedikit lemak sehat. Jangan melewatkan makan bila menggunakan insulin atau obat yang dapat menyebabkan hipoglikemia; sesuaikan jadwal dengan edukasi klinisi.'});
+ if(dyslipid)items.push({title:'Kolesterol total meningkat',body:'Kurangi gorengan, santan kental yang sering/berlebihan, kulit ayam, jeroan, daging berlemak, mentega, dan makanan ultra-proses. Pilih ikan, tahu, tempe, kacang-kacangan, sayuran, buah utuh, serta cara masak rebus, pepes, kukus, atau panggang. Tambahkan sumber serat larut seperti oat atau kacang-kacangan bila tersedia.'});
+ if(hyperuric)items.push({title:'Asam urat di atas kisaran rujukan',body:'Batasi jeroan, kaldu daging pekat, ekstrak daging, dan konsumsi berlebihan daging merah atau beberapa seafood tinggi purin. Hindari minuman tinggi fruktosa dan batasi alkohol bila dikonsumsi. Cukupi air minum bila tidak ada pembatasan cairan dari dokter. Tidak perlu menghindari semua sayuran/kacang-kacangan; purin nabati umumnya tidak perlu dibatasi ketat. Asam urat tinggi tanpa gejala tidak otomatis memerlukan obat atau diet ekstrem.'});
+ if(overweight)items.push({title:'Berat badan berlebih / obesitas (acuan IMT dewasa Asia)',body:'Utamakan penurunan berat badan bertahap bila sesuai kondisi klinis. Kurangi porsi nasi/umbi secara terukur, minuman berpemanis, gorengan, camilan tinggi kalori, dan makan sambil menonton. Tambah sayur, buah utuh, protein yang cukup, dan aktivitas fisik bertahap. Hindari diet sangat rendah kalori atau obat pelangsing tanpa pengawasan.'});
+ if(underweight)items.push({title:'Berat badan kurang',body:'Evaluasi penyebab penurunan berat badan, nafsu makan, masalah gigi/menelan, infeksi kronis termasuk TBC bila ada gejala, dan penyakit lain. Tingkatkan energi serta protein melalui porsi kecil lebih sering, telur, ikan, tempe, tahu, kacang, susu bila toleran, dan tambahan minyak sehat secukupnya. Rujuk untuk penilaian gizi bila penurunan berat badan tidak disengaja.'});
+ if(kidney)items.push({title:'Catatan penyakit ginjal/jantung/stroke atau penyakit penyerta',body:'Jangan memberikan anjuran tinggi protein, tinggi kalium, pembatasan cairan, atau pengganti garam secara otomatis. Kebutuhan natrium, kalium, protein, fosfor, dan cairan bergantung stadium penyakit, hasil laboratorium, obat, dan kondisi klinis. Minta penilaian dokter/ahli gizi sebelum membuat pembatasan khusus.'});
+ if(preg)items.push({title:'Kehamilan',body:'Gunakan konseling gizi antenatal: makan beragam, sumber protein dan zat besi, sayur/buah yang aman, serta suplemen sesuai program ANC. Jangan menerapkan program penurunan berat badan atau diet pembatasan ketat. Interpretasi IMT dan kebutuhan gizi harus memakai standar kehamilan.'});
+ let html='<div class="note"><b>Gunakan sebagai bahan konseling, bukan resep diet.</b> Tanyakan kebiasaan makan, kemampuan membeli pangan, alergi/intoleransi, budaya, pekerjaan, obat, dan penyakit penyerta. Sesuaikan target dengan pasien.</div>';
+ html+='<h3>Rencana konseling yang relevan dengan hasil skrining</h3>';
+ html+=items.map((x,i)=>`<div class="panel" style="margin:9px 0;padding:12px"><b>${i+1}. ${x.title}</b><p style="margin:6px 0 0;line-height:1.55">${x.body}</p></div>`).join('');
+ html+='<h3>Contoh susunan makan sehari (fleksibel)</h3><div style="overflow-x:auto"><table><thead><tr><th>Waktu</th><th>Contoh pilihan</th><th>Pesan konseling</th></tr></thead><tbody>'+
+ '<tr><td>Pagi</td><td>Nasi/jagung/ubi secukupnya, telur atau tempe, sayur, air putih</td><td>Jangan hanya karbohidrat; tambahkan protein dan sayur</td></tr>'+
+ '<tr><td>Selingan</td><td>Buah utuh sesuai musim, tanpa tambahan gula</td><td>Utamakan buah utuh daripada jus/minuman manis</td></tr>'+
+ '<tr><td>Siang</td><td>Nasi/jagung secukupnya, ikan segar/tempe, sayur bening atau tumis sedikit minyak</td><td>Batasi garam, santan kental, dan gorengan</td></tr>'+
+ '<tr><td>Selingan sore</td><td>Ubi rebus atau kacang tanpa garam dalam porsi wajar</td><td>Hindari camilan ultra-proses dan tinggi gula/garam</td></tr>'+
+ '<tr><td>Malam</td><td>Porsi makanan pokok terukur, tahu/ikan/telur, sayuran</td><td>Atur porsi sesuai aktivitas, obat, dan kebutuhan gizi</td></tr></tbody></table></div>';
+ html+='<h3>Target tindak lanjut konseling</h3><ul><li>Tetapkan 1–2 perubahan kecil yang disepakati pasien.</li><li>Catat target yang spesifik, misalnya mengurangi minuman manis atau mengganti ikan asin dengan ikan segar.</li><li>Evaluasi kepatuhan, berat badan, tekanan darah, dan pemeriksaan laboratorium pada kunjungan berikutnya.</li><li>Libatkan keluarga bila pasien setuju dan diperlukan.</li></ul>';
+ html+=`
+ <div class="panel" style="margin-top:16px">
+ <h3>Formulir konseling individual pasien</h3>
+ <p class="hint">Isi bersama pasien. Pilih sasaran kecil yang realistis dan sesuai kemampuan rumah tangga. Kolom ini dapat disimpan sebagai catatan konseling dan dicetak.</p>
+ <div class="counsel-form">
+  <div class="field"><label>Masalah utama yang dibahas</label><select id="cFocus"><option value="Pola makan seimbang">Pola makan seimbang</option><option value="Tekanan darah / hipertensi">Tekanan darah / hipertensi</option><option value="Gula darah / diabetes">Gula darah / diabetes</option><option value="Kolesterol">Kolesterol</option><option value="Asam urat">Asam urat</option><option value="Berat badan">Berat badan</option><option value="Gizi kurang">Gizi kurang</option><option value="Penyakit penyerta / diet khusus">Penyakit penyerta / diet khusus</option></select></div>
+  <div class="field"><label>Tanggal kontrol / evaluasi</label><input id="cFollow" type="date"></div>
+  <div class="field wide"><label>Target perubahan yang disepakati (contoh: tidak minum teh manis setiap hari)</label><textarea id="cGoal" placeholder="Tuliskan 1–2 target yang spesifik dan realistis"></textarea></div>
+  <div class="field wide"><label>Penyesuaian menu / kebiasaan makan di rumah</label><textarea id="cMenu" placeholder="Bahan pangan lokal, porsi, cara masak, pengurangan garam/gula/lemak..."></textarea></div>
+  <div class="field wide"><label>Aktivitas fisik dan kebiasaan sehat</label><textarea id="cActivity" placeholder="Contoh: jalan kaki bertahap sesuai kemampuan; berhenti merokok; tidur cukup..."></textarea></div>
+  <div class="field wide"><label>Catatan khusus / hambatan pasien</label><textarea id="cBarrier" placeholder="Ketersediaan pangan, biaya, alergi, pantangan budaya, pekerjaan, obat, dukungan keluarga..."></textarea></div>
+  <div class="field"><label>Nama petugas konseling</label><input id="cCounselor" placeholder="Nama petugas"></div>
+  <div class="field"><label>Lokasi / unit</label><input id="cLocation" placeholder="Poli / Pustu / kegiatan tracing"></div>
+ </div>
+ <div class="actions no-print">
+  <button id="cSave" class="secondary">Simpan catatan konseling</button>
+  <button id="cPreview">Buat lembar konseling</button>
+  <button id="cPrint" class="secondary">Cetak lembar pasien / PDF</button>
+ </div>
+ <div id="counselPrint" class="print-sheet"></div>
+ </div>`;
+ $('dietContent').innerHTML=html;
+ loadCounseling();
+ $('cSave').onclick=saveCounseling;
+ $('cPreview').onclick=buildCounselPrint;
+ $('cPrint').onclick=()=>{buildCounselPrint();document.body.classList.add('print-counsel');window.print();document.body.classList.remove('print-counsel')};
+}
+function counselingKey(){return 'ckg_counsel_'+(($('mr').value||$('name').value||'pasien-umum').trim().toLowerCase())}
+function loadCounseling(){
+ try{let x=JSON.parse(localStorage.getItem(counselingKey())||'{}');[['cFocus','focus'],['cFollow','follow'],['cGoal','goal'],['cMenu','menu'],['cActivity','activity'],['cBarrier','barrier'],['cCounselor','counselor'],['cLocation','location']].forEach(([id,k])=>{if(x[k]!==undefined)$(id).value=x[k]})}catch(e){}
+}
+function counselingData(){
+ return {focus:$('cFocus').value,follow:$('cFollow').value,goal:$('cGoal').value,menu:$('cMenu').value,activity:$('cActivity').value,barrier:$('cBarrier').value,counselor:$('cCounselor').value,location:$('cLocation').value,updated:new Date().toISOString()};
+}
+function saveCounseling(){
+ try{localStorage.setItem(counselingKey(),JSON.stringify(counselingData()));recordRender();dashRender();alert('Catatan konseling tersimpan pada perangkat ini.')}catch(e){alert('Tidak dapat menyimpan. Periksa ruang penyimpanan browser.')}
+}
+function buildCounselPrint(){
+ let c=counselingData(),patient=$('name').value||'—',code=$('mr').value||'—',bmi=current?.bmi??null;
+ let safe=x=>esc(x||'—').replace(/\n/g,'<br>');
+ let findings=current?.conclusion||'Belum ada kesimpulan skrining';
+ let rec=current?.rec||[];
+ $('counselPrint').innerHTML=`<div style="font-family:Arial,sans-serif;line-height:1.45">
+ <div style="text-align:center;border-bottom:2px solid #333;padding-bottom:8px"><b>PEMERINTAH KABUPATEN ENDE</b><br><b>PUSKESMAS NGALUPOLO</b><br><b>LEMBAR EDUKASI DAN KONSELING KESEHATAN</b></div>
+ <p><b>Nama pasien:</b> ${safe(patient)} &nbsp; <b>No. RM/kode:</b> ${safe(code)}<br><b>Umur:</b> ${safe($('age').value)} tahun &nbsp; <b>Tanggal:</b> ${safe($('date').value)}</p>
+ <h3>Ringkasan hasil skrining</h3><p>${safe(findings)}<br>Tekanan darah: ${safe($('sys').value)}/${safe($('dia').value)} mmHg · Berat: ${safe($('weight').value)} kg · IMT: ${safe(bmi===null?'—':bmi.toFixed(1))} kg/m² · Gula: ${safe($('glucose').value)} mg/dL · Kolesterol: ${safe($('chol').value)} mg/dL · Asam urat: ${safe($('uric').value)} mg/dL</p>
+ <h3>Topik konseling</h3><p>${safe(c.focus)}</p>
+ <h3>Target perubahan yang disepakati</h3><p>${safe(c.goal)}</p>
+ <h3>Penyesuaian menu dan kebiasaan makan</h3><p>${safe(c.menu)}</p>
+ <h3>Aktivitas fisik dan kebiasaan sehat</h3><p>${safe(c.activity)}</p>
+ <h3>Hambatan / catatan pasien</h3><p>${safe(c.barrier)}</p>
+ <h3>Pesan tindak lanjut</h3><ul>${rec.map(x=>'<li>'+safe(x)+'</li>').join('')}</ul>
+ <p><b>Jadwal evaluasi berikutnya:</b> ${safe(c.follow)}</p>
+ <p style="margin-top:28px">Petugas konseling,<br><br><br><b>${safe(c.counselor)}</b><br>${safe(c.location)}</p>
+ <hr><small>Materi edukasi ini merupakan pendamping konseling, bukan diagnosis atau resep. Penyesuaian diet khusus, obat, dan rujukan harus mengikuti evaluasi klinis dokter/ahli gizi.</small></div>`;
+ $('counselPrint').style.display='block';
+}
+function renderHistory(){ $('rows').innerHTML=data.slice().reverse().map(r=>`<tr><td>${r.date||''}</td><td>${esc(r.mr||r.name)}</td><td>${r.age||'—'}</td><td>${r.weight||'—'}</td><td>${f(r.bmi)}</td><td>${r.sys||'—'}/${r.dia||'—'}</td><td>${r.glucose||'—'}</td><td><button class="secondary" onclick="openRec(${r.id})">Buka</button> <button class="danger" onclick="delRec(${r.id})">Hapus</button></td></tr>`).join('');let sel=$('patient'),old=sel.value,ks=[...new Set(data.map(r=>r.mr||r.name).filter(Boolean))];sel.innerHTML='<option value="">Semua pasien</option>'+ks.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');sel.value=ks.includes(old)?old:''}
+window.openRec=id=>{let r=data.find(x=>x.id===id);if(!r)return;keys.forEach(k=>$(k).value=r[k]??'');classify();document.querySelector('[data-tab="input"]').click()};
+window.delRec=id=>{if(confirm('Hapus kunjungan ini?')){data=data.filter(x=>x.id!==id);persist();renderHistory();draw();fuRender();recordRender();dashRender()}};
+$('erase').onclick=()=>{if(confirm('Hapus semua data pada perangkat ini? Ekspor cadangan lebih dahulu.')){data=[];persist();renderHistory();draw()}};
+$('export').onclick=()=>{let extras={};Object.keys(localStorage).filter(k=>k.startsWith('ckg_counsel_')||k.startsWith('ckg_pharma_v9_')).forEach(k=>{try{extras[k]=JSON.parse(localStorage.getItem(k))}catch(e){}});let bundle={app:'CKG_Puskesmas_Ngalupolo',version:11,exportedAt:new Date().toISOString(),ckg:data,rekonsiliasi:patientRecon,kunjunganLanjutan:fuData,catatanTerkait:extras};let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify(bundle,null,2)],{type:'application/json'}));a.href=u;a.download='Cadangan_Terpadu_CKG_Ngalupolo_V10.json';a.click();URL.revokeObjectURL(u)};
+$('import').onchange=async e=>{try{let x=JSON.parse(await e.target.files[0].text());if(confirm('Gabungkan data dari file cadangan ini?')){if(Array.isArray(x)){data=data.concat(x)}else if(x&&typeof x==='object'){if(Array.isArray(x.ckg))data=data.concat(x.ckg);if(Array.isArray(x.rekonsiliasi))patientRecon=patientRecon.concat(x.rekonsiliasi);if(Array.isArray(x.kunjunganLanjutan))fuData=fuData.concat(x.kunjunganLanjutan);Object.entries(x.catatanTerkait||{}).forEach(([k,v])=>{if(k.startsWith('ckg_counsel_')||k.startsWith('ckg_pharma_v9_'))localStorage.setItem(k,JSON.stringify(v))});prPersist();localStorage.setItem('ckg_followups_v9',JSON.stringify(fuData))}else throw 0;persist();renderHistory();prRender();fuRender();dashRender();recordRender();rpPopulate();alert('Impor cadangan terpadu selesai. Data digabungkan, bukan menimpa data lama.')}}catch(_){alert('File tidak valid atau tidak dapat dibaca.')}e.target.value=''};
+$('patient').onchange=draw;
+function plot(id,series,bands=null){
+ let c=$(id),ctx=c.getContext('2d'),w=c.clientWidth,h=c.clientHeight,dpr=devicePixelRatio||1;
+ c.width=w*dpr;c.height=h*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);
+ let all=series.flatMap(s=>s.v.map(x=>x.v).filter(x=>x!=null));
+ ctx.font='11px system-ui';ctx.fillStyle='#607582';
+ if(!all.length){ctx.fillText('Belum ada data tersimpan',10,24);return}
+ let bandList=bands?(Array.isArray(bands)?bands:[bands]):[];
+ let vals=all.slice();bandList.forEach(z=>vals.push(z.min,z.max));
+ let lo=Math.min(0,...vals),hi=Math.max(...vals);if(lo===hi)hi=lo+1;
+ let L=42,R=10,T=15,B=32,pw=w-L-R,ph=h-T-B,yy=v=>T+(hi-v)/(hi-lo)*ph;
+ bandList.forEach((z,i)=>{let top=yy(z.max),bottom=yy(z.min);ctx.fillStyle=z.color||(i%2?'rgba(21,94,117,.10)':'rgba(19,117,71,.13)');ctx.fillRect(L,top,pw,Math.max(1,bottom-top));ctx.strokeStyle='rgba(19,117,71,.65)';ctx.setLineDash([4,3]);[z.min,z.max].forEach(v=>{ctx.beginPath();ctx.moveTo(L,yy(v));ctx.lineTo(w-R,yy(v));ctx.stroke()});ctx.setLineDash([])});
+ if(bandList.length){ctx.fillStyle='#137547';ctx.font='10px system-ui';ctx.fillText('AREA ACUAN: '+bandList.map(z=>z.label).join(' · '),L+4,11)}
+ ctx.strokeStyle='#e5edef';ctx.fillStyle='#607582';ctx.font='11px system-ui';
+ for(let i=0;i<5;i++){let y=T+i*ph/4;ctx.beginPath();ctx.moveTo(L,y);ctx.lineTo(w-R,y);ctx.stroke();ctx.fillText((hi-(hi-lo)*i/4).toFixed(0),3,y+4)}
+ let count=Math.max(...series.map(s=>s.v.length));
+ series.forEach((s,j)=>{ctx.strokeStyle=['#0f766e','#d97706','#2563eb'][j%3];ctx.fillStyle=ctx.strokeStyle;ctx.lineWidth=2;ctx.beginPath();let started=false;s.v.forEach((p,i)=>{if(p.v==null)return;let x=L+(count===1?pw/2:i*pw/Math.max(1,count-1)),y=yy(p.v);if(!started){ctx.moveTo(x,y);started=true}else ctx.lineTo(x,y);ctx.fillRect(x-2.5,y-2.5,5,5)});ctx.stroke()});
+ ctx.fillStyle='#607582';ctx.font='10px system-ui';ctx.fillText(series.map(s=>s.label).join(' / '),L,h-7);
+}
+function draw(){
+ let k=$('patient').value,a=data.filter(r=>!k||(r.mr||r.name)===k).sort((x,y)=>(x.date||'').localeCompare(y.date||'')),v=id=>a.map(r=>({v:r[id]===''||r[id]==null?null:Number(r[id])}));
+ plot('bp',[{label:'Sistolik',v:v('sys')},{label:'Diastolik',v:v('dia')}],[{min:90,max:119,label:'Sistolik 90–119'},{min:60,max:79,label:'Diastolik 60–79'}]);
+ plot('bw',[{label:'Berat badan (kg)',v:v('weight')}]);
+ plot('bmi',[{label:'IMT',v:a.map(r=>({v:r.bmi}))}],[{min:18.5,max:22.9,label:'Normal 18,5–22,9',color:'rgba(19,117,71,.16)'},{min:23,max:24.9,label:'Berlebih 23–24,9',color:'rgba(217,119,6,.13)'},{min:25,max:35,label:'Obesitas ≥25',color:'rgba(180,35,24,.10)'}]);
+ let glucoseTypes=[...new Set(a.filter(r=>r.glucose!==''&&r.glucose!=null).map(r=>r.gtype))];
+ let gBands=glucoseTypes.length===1?(glucoseTypes[0]==='puasa'?[{min:70,max:99,label:'GDP <100 normal',color:'rgba(19,117,71,.16)'},{min:100,max:125,label:'GDP 100–125 perlu evaluasi',color:'rgba(217,119,6,.15)'},{min:126,max:300,label:'GDP ≥126 perlu konfirmasi',color:'rgba(180,35,24,.12)'}]:glucoseTypes[0]==='2jam'?[{min:70,max:139,label:'2 jam <140 normal',color:'rgba(19,117,71,.16)'},{min:140,max:199,label:'2 jam 140–199 perlu evaluasi',color:'rgba(217,119,6,.15)'},{min:200,max:350,label:'2 jam ≥200 perlu konfirmasi',color:'rgba(180,35,24,.12)'}]:null):null;
+ plot('glu',[{label:'Gula darah',v:v('glucose')}],gBands);
+ plot('cho',[{label:'Kolesterol',v:v('chol')}],[{min:0,max:199,label:'Diinginkan <200',color:'rgba(19,117,71,.16)'},{min:200,max:239,label:'Batas tinggi 200–239',color:'rgba(217,119,6,.15)'},{min:240,max:400,label:'Tinggi ≥240',color:'rgba(180,35,24,.12)'}]);
+ let sexes=[...new Set(a.filter(r=>r.uric!==''&&r.uric!=null).map(r=>r.sex))];
+ let uBands=sexes.length===1?(sexes[0]==='L'?[{min:3.5,max:7.2,label:'Kisaran umum L 3,5–7,2',color:'rgba(19,117,71,.16)'},{min:7.21,max:12,label:'Di atas kisaran',color:'rgba(217,119,6,.15)'}]:[{min:2.6,max:6.0,label:'Kisaran umum P 2,6–6,0',color:'rgba(19,117,71,.16)'},{min:6.01,max:12,label:'Di atas kisaran',color:'rgba(217,119,6,.15)'}]):null;
+ plot('uri',[{label:'Asam urat',v:v('uric')}],uBands);
+}
+
+// ===== V8: Rekonsiliasi obat individual pasien =====
+const prFields=['prDate','prName','prMR','prAge','prSex','prUnit','prDiagnosis','prPrescriber','prAllergy','prProblems','prPlan','prStatus','prOfficer','prFollow','prConfirm','prNotes'];
+let patientRecon=[];try{patientRecon=JSON.parse(localStorage.getItem('ckg_ngalupolo_patient_recon_v8')||'[]');if(!Array.isArray(patientRecon))patientRecon=[]}catch(e){patientRecon=[]}
+let prEditing=null;
+$('prDate').value=new Date().toISOString().slice(0,10);
+function prAddRow(m={}){let tr=document.createElement('tr');tr.innerHTML=`<td><input class="pr-med" data-k="drug" placeholder="Nama & kekuatan" value="${esc(m.drug||'')}"></td><td><input class="pr-med" data-k="dose" placeholder="Dosis, frekuensi, durasi" value="${esc(m.dose||'')}"></td><td><input class="pr-med" data-k="route" placeholder="Oral, topikal, dll." value="${esc(m.route||'')}"></td><td><input class="pr-med" data-k="source" placeholder="Resep / rumah / RS" value="${esc(m.source||'')}"></td><td><input class="pr-med" data-k="indication" placeholder="Untuk apa?" value="${esc(m.indication||'')}"></td><td><input class="pr-med" data-k="adherence" placeholder="Teratur / lupa / berhenti" value="${esc(m.adherence||'')}"></td><td><input class="pr-med" data-k="effect" placeholder="Keluhan / catatan" value="${esc(m.effect||'')}"></td><td class="no-print"><button type="button" class="danger pr-remove">Hapus</button></td>`;tr.querySelector('.pr-remove').onclick=()=>tr.remove();$('prMedRows').appendChild(tr)}
+function prRead(){let o={};prFields.forEach(k=>o[k]=$(k).value);o.medicines=[...$('prMedRows').querySelectorAll('tr')].map(tr=>{let x={};tr.querySelectorAll('.pr-med').forEach(i=>x[i.dataset.k]=i.value.trim());return x}).filter(x=>Object.values(x).some(Boolean));o.id=prEditing||Date.now();return o}
+function prPersist(){try{localStorage.setItem('ckg_ngalupolo_patient_recon_v8',JSON.stringify(patientRecon));return true}catch(e){alert('Penyimpanan browser penuh/tidak tersedia. Unduh cadangan JSON.');return false}}
+function prReset(){prEditing=null;prFields.forEach(k=>$(k).value='');$('prDate').value=new Date().toISOString().slice(0,10);$('prStatus').value='Perlu ditindaklanjuti';$('prMedRows').innerHTML='';prAddRow();$('prSave').textContent='Simpan rekonsiliasi pasien'}
+$('prAddMed').onclick=()=>prAddRow();$('prReset').onclick=prReset;
+$('prSave').onclick=()=>{let o=prRead();if(!o.prName.trim()&&!o.prMR.trim()){alert('Isi nama atau nomor rekam medis pasien.');return}if(!o.medicines.length){alert('Masukkan minimal satu obat yang sedang/pernah digunakan pasien.');return}if(prEditing){let i=patientRecon.findIndex(x=>x.id===prEditing);if(i>=0)patientRecon[i]=o}else patientRecon.push(o);if(prPersist()){prRender();prReset();recordRender();dashRender();alert('Rekonsiliasi obat pasien tersimpan pada perangkat ini.')}};
+function prRender(){let q=$('prSearch').value.toLowerCase(),st=$('prFilter').value;let arr=patientRecon.filter(o=>(!q||((o.prName||'')+' '+(o.prMR||'')).toLowerCase().includes(q))&&(!st||o.prStatus===st)).sort((a,b)=>(b.prDate||'').localeCompare(a.prDate||''));$('prRows').innerHTML=arr.map(o=>`<tr><td>${esc(o.prDate||'')}</td><td>${esc(o.prName||'—')}<br><small>${esc(o.prMR||'')}</small></td><td>${esc(o.prDiagnosis||'—')}</td><td>${(o.medicines||[]).length}</td><td>${esc(o.prStatus||'')}</td><td>${esc(o.prFollow||'—')}</td><td class="no-print"><button class="secondary" onclick="prEdit(${o.id})">Buka/Edit</button> <button class="danger" onclick="prDelete(${o.id})">Hapus</button> <button class="secondary" onclick="prPrintOne(${o.id})">Cetak</button></td></tr>`).join('')||'<tr><td colspan="7">Belum ada rekonsiliasi obat pasien.</td></tr>'}
+window.prEdit=id=>{let o=patientRecon.find(x=>x.id===id);if(!o)return;prEditing=id;prFields.forEach(k=>$(k).value=o[k]??'');$('prMedRows').innerHTML='';(o.medicines||[]).forEach(m=>prAddRow(m));if(!(o.medicines||[]).length)prAddRow();$('prSave').textContent='Simpan perubahan';document.querySelector('#recon').scrollIntoView({behavior:'smooth'})};
+window.prDelete=id=>{if(confirm('Hapus rekonsiliasi obat pasien ini?')){patientRecon=patientRecon.filter(o=>o.id!==id);prPersist();prRender()}};
+['prSearch','prFilter'].forEach(id=>$(id).addEventListener('input',prRender));
+function prPrintHtml(o){let meds=(o.medicines||[]).map(m=>`<tr>${['drug','dose','route','source','indication','adherence','effect'].map(k=>`<td>${esc(m[k]||'')}</td>`).join('')}</tr>`).join('');return `<html><head><title>Rekonsiliasi Obat Pasien</title><style>body{font:12px Arial;padding:22px;color:#222}h2{text-align:center}table{border-collapse:collapse;width:100%;font-size:10px;margin:12px 0}th,td{border:1px solid #888;padding:5px;vertical-align:top}th{background:#eee}.meta{line-height:1.8}.sign{margin-top:45px;display:flex;justify-content:space-between}</style></head><body><h2>PUSKESMAS NGALUPOLO<br>LEMBAR REKONSILIASI OBAT PASIEN</h2><div class="meta"><b>Tanggal:</b> ${esc(o.prDate||'')} &nbsp; <b>Nama:</b> ${esc(o.prName||'')} &nbsp; <b>No. RM:</b> ${esc(o.prMR||'')}<br><b>Umur/Tgl lahir:</b> ${esc(o.prAge||'')} &nbsp; <b>Jenis kelamin:</b> ${esc(o.prSex||'')} &nbsp; <b>Unit:</b> ${esc(o.prUnit||'')}<br><b>Diagnosis/indikasi:</b> ${esc(o.prDiagnosis||'')}<br><b>Dokter/penanggung jawab:</b> ${esc(o.prPrescriber||'')}<br><b>Alergi:</b> ${esc(o.prAllergy||'—')}</div><table><thead><tr><th>Nama obat/kekuatan</th><th>Dosis & aturan pakai</th><th>Rute</th><th>Asal</th><th>Indikasi</th><th>Kepatuhan/masalah</th><th>Efek samping/catatan</th></tr></thead><tbody>${meds}</tbody></table><p><b>Hasil telaah / masalah terkait obat:</b><br>${esc(o.prProblems||'—')}</p><p><b>Rekomendasi / rencana tindak lanjut:</b><br>${esc(o.prPlan||'—')}</p><p><b>Status:</b> ${esc(o.prStatus||'')} &nbsp; <b>Evaluasi berikutnya:</b> ${esc(o.prFollow||'—')}<br><b>Konfirmasi:</b> ${esc(o.prConfirm||'—')}</p><p><b>Petugas:</b> ${esc(o.prOfficer||'—')}<br><b>Catatan:</b> ${esc(o.prNotes||'—')}</p><div class="sign"><div>Pasien/Keluarga<br><br><br>(________________)</div><div>Petugas<br><br><br>(${esc(o.prOfficer||'________________')})</div></div><p style="font-size:9px">Catatan: perubahan atau penghentian obat harus melalui konfirmasi tenaga kesehatan yang berwenang.</p>
+<script>
+(() => {
+  const installBtn = document.getElementById('pwaInstallBtn');
+  let deferredPrompt = null;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone) {
+    installBtn.textContent = '✓ Aplikasi sudah terpasang';
+  }
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredPrompt = event;
+    installBtn.textContent = '＋ Instal aplikasi CKG';
+  });
+  installBtn.addEventListener('click', async () => {
+    if (isStandalone) {
+      alert('Aplikasi CKG sudah dibuka dalam mode aplikasi.');
+      return;
+    }
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      return;
+    }
+    if (isIOS) {
+      alert('Untuk memasang di iPhone: buka halaman ini di Safari, ketuk tombol Bagikan, lalu pilih “Add to Home Screen / Tambahkan ke Layar Utama”.');
+    } else {
+      alert('Untuk memasang di Android: buka halaman ini di Chrome, ketuk menu titik tiga (⋮), pilih “Instal aplikasi” atau “Tambahkan ke layar utama”, lalu konfirmasi.');
+    }
+  });
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Pendaftaran offline gagal:', err));
+    });
+  }
+})();
+</script>
+
+</body></html>`}
+window.prPrintOne=id=>{let o=patientRecon.find(x=>x.id===id);if(!o)return;let w=window.open('','_blank');if(!w){alert('Izinkan pop-up untuk mencetak.');return}w.document.write(prPrintHtml(o));w.document.close();w.focus();w.print()};
+$('prPrint').onclick=()=>{let o=prRead();if(!o.prName&&!o.prMR){alert('Isi identitas pasien terlebih dahulu.');return}let w=window.open('','_blank');if(!w){alert('Izinkan pop-up untuk mencetak.');return}w.document.write(prPrintHtml(o));w.document.close();w.focus();w.print()};
+$('prExport').onclick=()=>{let blob=new Blob([JSON.stringify({app:'Rekonsiliasi Obat Pasien Puskesmas Ngalupolo',version:11,exportedAt:new Date().toISOString(),records:patientRecon},null,2)],{type:'application/json'}),a=document.createElement('a'),u=URL.createObjectURL(blob);a.href=u;a.download='Cadangan_Rekonsiliasi_Obat_Pasien_Ngalupolo_V9.json';a.click();URL.revokeObjectURL(u)};
+$('prImport').onchange=async e=>{try{let x=JSON.parse(await e.target.files[0].text()),arr=Array.isArray(x)?x:x.records;if(!Array.isArray(arr))throw Error('format');if(confirm('Impor '+arr.length+' rekonsiliasi pasien? Data dengan ID sama akan diperbarui.')){let m=new Map(patientRecon.map(o=>[o.id,o]));arr.forEach(o=>m.set(o.id||Date.now()+Math.random(),o));patientRecon=[...m.values()];prPersist();prRender();alert('Impor selesai.')}}catch(_){alert('File cadangan tidak valid.')}e.target.value=''};
+prReset();prRender();
+
+
+
+// ===== V10: satu rekam pemantauan pasien terhubung =====
+function normPatient(v){return String(v||'').trim().toLowerCase().replace(/\s+/g,' ')}
+function patientIdentity(r){return String(r.mr||r.name||'').trim()}
+function allPatientKeys(){let vals=[];data.forEach(r=>{let k=patientIdentity(r);if(k)vals.push(k)});patientRecon.forEach(r=>{let k=String(r.prMR||r.prName||'').trim();if(k)vals.push(k)});fuData.forEach(r=>{if(r.patient)vals.push(String(r.patient))});let map=new Map();vals.forEach(v=>{let n=normPatient(v);if(n&&!map.has(n))map.set(n,v)});return [...map.values()].sort((a,b)=>a.localeCompare(b))}
+function populatePatientSelectors(){let keys=allPatientKeys();[['recordPatient','Pilih pasien'],['prLinkPatient','Pilih pasien CKG (opsional)']].forEach(([id,label])=>{let el=$(id),old=el.value;el.innerHTML=`<option value="">${label}</option>`+keys.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');if(keys.some(k=>normPatient(k)===normPatient(old)))el.value=old});}
+$('prLinkPatient').onchange=()=>{let k=$('prLinkPatient').value;if(!k)return;let r=data.find(x=>normPatient(patientIdentity(x))===normPatient(k));if(r){$('prName').value=r.name||r.mr||'';$('prMR').value=r.mr||'';$('prAge').value=r.age||'';$('prSex').value=r.sex||'';$('prUnit').value=r.unit||$('prUnit').value;$('prDiagnosis').value=r.diagnosis||$('prDiagnosis').value;}else{$('prName').value=k;$('prMR').value=k}};
+function patientMatches(value,k){return normPatient(value)===normPatient(k)}
+function recordRender(){
+ populatePatientSelectors();let k=$('recordPatient').value;
+ if(!k){$('recordIdentity').value='';$('recordSummary').innerHTML='';$('recordTimeline').innerHTML='<p class="hint">Pilih pasien untuk menampilkan riwayat terhubung.</p>';$('recordClinical').innerHTML='';return}
+ $('recordIdentity').value=k;
+ let ckg=data.filter(r=>patientMatches(patientIdentity(r),k)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+ let meds=patientRecon.filter(r=>patientMatches(r.prMR||r.prName,k)).sort((a,b)=>(a.prDate||'').localeCompare(b.prDate||''));
+ let visits=fuData.filter(r=>patientMatches(r.patient,k)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+ let counseling=null,pharma=[];
+ let cKey='ckg_counsel_'+k.trim().toLowerCase();try{counseling=JSON.parse(localStorage.getItem(cKey)||'null')}catch(e){}
+ let pKey='ckg_pharma_v9_'+k.trim().toLowerCase();try{let x=JSON.parse(localStorage.getItem(pKey)||'null');if(x)pharma.push(x)}catch(e){}
+ // Also search name/code alternate identifiers from all matching CKG entries.
+ [...ckg.map(r=>r.name),...meds.map(r=>r.prName)].filter(Boolean).forEach(alias=>{for(let prefix of ['ckg_counsel_','ckg_pharma_v9_']){try{let x=JSON.parse(localStorage.getItem(prefix+alias.trim().toLowerCase())||'null');if(x){if(prefix==='ckg_counsel_')counseling=x;else pharma.push(x)}}catch(e){}}});
+ let nEvents=ckg.length+meds.length+visits.length+(counseling?1:0)+pharma.length;
+ $('recordSummary').innerHTML=[['Pemeriksaan CKG',ckg.length],['Rekonsiliasi obat',meds.length],['Kunjungan lanjutan',visits.length],['Catatan konseling',counseling?1:0],['Telaah farmakoterapi',pharma.length]].map(x=>`<div class="metric"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');
+ let events=[];
+ ckg.forEach(r=>events.push({date:r.date||'',type:'Pemeriksaan CKG',detail:`BB ${r.weight??'—'} kg · IMT ${r.bmi??'—'} · TD ${r.sys??'—'}/${r.dia??'—'} · Gula ${r.glucose??'—'} (${r.gtype||'—'})`,id:r.id,action:`<button class="secondary" onclick="openRec(${r.id})">Buka pemeriksaan</button>`}));
+ meds.forEach(r=>events.push({date:r.prDate||'',type:'Rekonsiliasi obat',detail:`${(r.medicines||[]).length} item obat · Status: ${r.prStatus||'—'} · Rencana: ${r.prPlan||'—'}`,id:r.id,action:`<button class="secondary" onclick="prEdit(${r.id});document.querySelector('[data-tab=\\'recon\\']').click()">Buka rekonsiliasi</button>`}));
+ visits.forEach(r=>events.push({date:r.date||'',type:'Kunjungan lanjutan',detail:`BB ${r.weight??'—'} kg · TD ${r.sys??'—'}/${r.dia??'—'} · Gula ${r.glucose??'—'} · Catatan: ${r.notes||'—'}`,id:r.id,action:''}));
+ if(counseling)events.push({date:(counseling.updated||'').slice(0,10),type:'Konseling & diet',detail:`Fokus: ${counseling.focus||'—'} · Tujuan: ${counseling.goal||'—'} · Tindak lanjut: ${counseling.follow||'—'}`,action:''});
+ pharma.forEach(r=>events.push({date:r.date||'',type:'Telaah farmakoterapi',detail:`Topik: ${phTopics[r.topic]?.title||r.topic||'—'} · Rencana: ${r.plan||'—'}`,action:''}));
+ events.sort((a,b)=>(b.date||'').localeCompare(a.date||''));
+ $('recordTimeline').innerHTML=events.length?`<div style="overflow-x:auto"><table><thead><tr><th>Tanggal</th><th>Jenis catatan</th><th>Ringkasan</th><th>Aksi</th></tr></thead><tbody>${events.map(e=>`<tr><td>${esc(e.date||'—')}</td><td><b>${esc(e.type)}</b></td><td>${esc(e.detail)}</td><td>${e.action||'—'}</td></tr>`).join('')}</tbody></table></div>`:'<p class="hint">Belum ada catatan untuk pasien ini.</p>';
+ let first=ckg[0],last=ckg[ckg.length-1],latestVisit=visits[visits.length-1];
+ $('recordClinical').innerHTML=first?`<div class="rowresult"><span>Pemeriksaan CKG pertama</span><b>${esc(first.date||'—')}</b></div><div class="rowresult"><span>Pemeriksaan CKG terakhir</span><b>${esc(last.date||'—')}</b></div><div class="rowresult"><span>Berat badan terakhir dari CKG</span><b>${last.weight??'—'} kg</b></div><div class="rowresult"><span>Tekanan darah terakhir dari CKG</span><b>${last.sys??'—'}/${last.dia??'—'} mmHg</b></div><div class="rowresult"><span>Kunjungan lanjutan terakhir</span><b>${latestVisit?.date||'Belum ada'}</b></div><p class="hint">Ringkasan ini menampilkan nilai yang tercatat; tidak menetapkan diagnosis atau keberhasilan terapi secara otomatis.</p>`:'<p class="hint">Belum ada data CKG awal. Catatan lain tetap ditampilkan pada linimasa bila tersedia.</p>';
+}
+$('recordPatient').onchange=recordRender;$('recordRefresh').onclick=recordRender;
+$('recordExport').onclick=()=>{let k=$('recordPatient').value;if(!k)return alert('Pilih pasien.');let obj={app:'Rekam_Pemantauan_Pasien_Ngalupolo',exportedAt:new Date().toISOString(),patient:k,ckg:data.filter(r=>patientMatches(patientIdentity(r),k)),rekonsiliasi:patientRecon.filter(r=>patientMatches(r.prMR||r.prName,k)),kunjunganLanjutan:fuData.filter(r=>patientMatches(r.patient,k)),catatanTerkait:{}};['ckg_counsel_','ckg_pharma_v9_'].forEach(prefix=>{let key=prefix+k.trim().toLowerCase();try{let v=JSON.parse(localStorage.getItem(key)||'null');if(v)obj.catatanTerkait[key]=v}catch(e){}});let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify(obj,null,2)],{type:'application/json'}));a.href=u;a.download='Rekam_Pasien_'+k.replace(/[^a-z0-9_-]/gi,'_')+'.json';a.click();URL.revokeObjectURL(u)};
+$('recordPrint').onclick=()=>{let k=$('recordPatient').value;if(!k)return alert('Pilih pasien.');let w=window.open('','_blank');if(!w)return alert('Izinkan pop-up untuk mencetak.');w.document.write(`<html><head><title>Rekam Pemantauan Pasien</title><style>body{font:13px Arial;padding:24px}table{width:100%;border-collapse:collapse}td,th{border:1px solid #aaa;padding:6px;text-align:left}</style></head><body><h2>PUSKESMAS NGALUPOLO</h2><h3>REKAM PEMANTAUAN PASIEN TERPADU</h3><p>Identitas/kode: ${esc(k)} · Dicetak: ${new Date().toLocaleDateString('id-ID')}</p>${$('recordSummary').innerHTML}<h3>Linimasa</h3>${$('recordTimeline').innerHTML}<h3>Ringkasan klinis</h3>${$('recordClinical').innerHTML}
+<script>
+(() => {
+  const installBtn = document.getElementById('pwaInstallBtn');
+  let deferredPrompt = null;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone) {
+    installBtn.textContent = '✓ Aplikasi sudah terpasang';
+  }
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredPrompt = event;
+    installBtn.textContent = '＋ Instal aplikasi CKG';
+  });
+  installBtn.addEventListener('click', async () => {
+    if (isStandalone) {
+      alert('Aplikasi CKG sudah dibuka dalam mode aplikasi.');
+      return;
+    }
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      return;
+    }
+    if (isIOS) {
+      alert('Untuk memasang di iPhone: buka halaman ini di Safari, ketuk tombol Bagikan, lalu pilih “Add to Home Screen / Tambahkan ke Layar Utama”.');
+    } else {
+      alert('Untuk memasang di Android: buka halaman ini di Chrome, ketuk menu titik tiga (⋮), pilih “Instal aplikasi” atau “Tambahkan ke layar utama”, lalu konfirmasi.');
+    }
+  });
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Pendaftaran offline gagal:', err));
+    });
+  }
+})();
+</script>
+
+</body></html>`);w.document.close();w.print()};
+
+
+// ===== V11: laporan perkembangan pasien per periode =====
+function rpDateIn(date,mode,month,from,to){
+ if(!date)return false;
+ if(mode==='month')return String(date).slice(0,7)===month;
+ if(mode==='range')return (!from||date>=from)&&(!to||date<=to);
+ return true;
+}
+function rpPopulate(){
+ let el=$('rpPatient'),old=el.value,keys=allPatientKeys();
+ el.innerHTML='<option value="">Pilih pasien</option>'+keys.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');
+ if(keys.some(k=>normPatient(k)===normPatient(old)))el.value=old;
+}
+function rpGetData(){
+ let k=$('rpPatient').value,mode=$('rpMode').value,month=$('rpMonth').value,from=$('rpFrom').value,to=$('rpTo').value;
+ if(!k)return null;
+ let ckg=data.filter(r=>patientMatches(patientIdentity(r),k)&&rpDateIn(r.date,mode,month,from,to)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+ let visits=fuData.filter(r=>patientMatches(r.patient,k)&&rpDateIn(r.date,mode,month,from,to)).sort((a,b)=>(a.date||'').localeCompare(b.date||''));
+ let meds=patientRecon.filter(r=>patientMatches(r.prMR||r.prName,k)&&rpDateIn(r.prDate,mode,month,from,to)).sort((a,b)=>(a.prDate||'').localeCompare(b.prDate||''));
+ let counselling=[];
+ let pharma=[];
+ let aliasSet=new Set([k,...data.filter(r=>patientMatches(patientIdentity(r),k)).map(r=>r.name),...patientRecon.filter(r=>patientMatches(r.prMR||r.prName,k)).map(r=>r.prName)].filter(Boolean));
+ for(let alias of aliasSet){
+  for(let prefix of ['ckg_counsel_','ckg_pharma_v9_']){
+   try{let x=JSON.parse(localStorage.getItem(prefix+String(alias).trim().toLowerCase())||'null');if(x){let d=prefix==='ckg_counsel_'?(x.updated||'').slice(0,10):x.date;if(rpDateIn(d,mode,month,from,to)){if(prefix==='ckg_counsel_')counselling.push(x);else pharma.push(x)}}}catch(e){}
+  }
+ }
+ return {patient:k,mode,month,from,to,ckg,visits,meds,counselling,pharma};
+}
+function rpDrawChart(records){
+ let c=$('rpChart');if(!c)return;let ctx=c.getContext('2d'),w=c.clientWidth||600,h=c.clientHeight||240,dpr=window.devicePixelRatio||1;
+ c.width=w*dpr;c.height=h*dpr;ctx.scale(dpr,dpr);ctx.clearRect(0,0,w,h);
+ let sets=[{key:'weight',label:'BB (kg)'},{key:'sys',label:'Sistolik'},{key:'dia',label:'Diastolik'}];
+ let series=sets.map(a=>({...a,values:records.map(r=>({date:r.date,v:r[a.key]===''?null:Number(r[a.key])})).filter(x=>x.v!=null&&!Number.isNaN(x.v))}));
+ let usable=series.filter(x=>x.values.length>0);
+ ctx.font='11px Arial';ctx.fillStyle='#52616b';
+ if(!usable.length){ctx.fillText('Belum ada data berat badan atau tekanan darah untuk digambarkan.',12,24);return}
+ let left=40,right=12,top=25,bottom=36,plotW=w-left-right,plotH=h-top-bottom;
+ let all=usable.flatMap(x=>x.values.map(v=>v.v)),lo=Math.min(...all),hi=Math.max(...all);if(lo===hi){lo-=5;hi+=5}
+ // normalize each series to a shared relative display so unlike units are not interpreted on one clinical scale
+ usable.forEach((ser,idx)=>{
+  let mn=Math.min(...ser.values.map(x=>x.v)),mx=Math.max(...ser.values.map(x=>x.v));if(mn===mx){mn-=1;mx+=1}
+  ctx.strokeStyle=['#0f766e','#2563eb','#b45309'][idx%3];ctx.fillStyle=ctx.strokeStyle;ctx.lineWidth=2;ctx.beginPath();
+  ser.values.forEach((v,i)=>{let x=left+(records.findIndex(r=>r.date===v.date)/Math.max(1,records.length-1))*plotW;let y=top+(1-(v.v-mn)/(mx-mn))*plotH;if(i===0)ctx.moveTo(x,y);else ctx.lineTo(x,y);ctx.fillRect(x-2,y-2,4,4)});
+  ctx.stroke();
+  ctx.fillText(ser.label,left+idx*105,13);
+ });
+ ctx.strokeStyle='#cbd5e1';ctx.beginPath();ctx.moveTo(left,top);ctx.lineTo(left,top+plotH);ctx.lineTo(w-right,top+plotH);ctx.stroke();
+ ctx.fillStyle='#52616b';ctx.fillText(records[0]?.date||'',left,h-8);ctx.fillText(records[records.length-1]?.date||'',Math.max(left,w-right-80),h-8);
+}
+function rpGenerate(){
+ let o=rpGetData();if(!o){alert('Pilih pasien terlebih dahulu.');return}
+ let first=o.ckg[0],last=o.ckg[o.ckg.length-1],lastVisit=o.visits[o.visits.length-1];
+ let total=o.ckg.length+o.visits.length+o.meds.length+o.counselling.length+o.pharma.length;
+ let period=o.mode==='month'?o.month:o.mode==='range'?`${o.from||'awal'} s.d. ${o.to||'sekarang'}`:'Seluruh riwayat';
+ let comparison=(a,b)=>a!=null&&b!=null?(Number(b)-Number(a)).toFixed(1):'—';
+ let medRows=o.meds.map(m=>`<tr><td>${esc(m.prDate||'—')}</td><td>${esc(m.prDiagnosis||'—')}</td><td>${(m.medicines||[]).map(x=>esc(x.drug||'')+' — '+esc(x.dose||'')).join('<br>')||'—'}</td><td>${esc(m.prStatus||'—')}</td><td>${esc(m.prPlan||'—')}</td></tr>`).join('');
+ let visitRows=o.visits.map(v=>`<tr><td>${esc(v.date||'—')}</td><td>${v.weight??'—'}</td><td>${v.sys??'—'}/${v.dia??'—'}</td><td>${v.glucose??'—'} (${esc(v.gtype||'')})</td><td>${v.chol??'—'}</td><td>${v.uric??'—'}</td><td>${esc(v.notes||'—')}</td><td>${esc(v.plan||'—')}</td></tr>`).join('');
+ let ckgRows=o.ckg.map(v=>`<tr><td>${esc(v.date||'—')}</td><td>${v.weight??'—'}</td><td>${v.bmi??'—'}</td><td>${v.sys??'—'}/${v.dia??'—'}</td><td>${v.glucose??'—'} (${esc(v.gtype||'')})</td><td>${v.chol??'—'}</td><td>${v.uric??'—'}</td><td>${esc(v.conclusion||'—')}</td></tr>`).join('');
+ let counselRows=o.counselling.map(v=>`<tr><td>${esc((v.updated||'').slice(0,10)||'—')}</td><td>${esc(v.focus||'—')}</td><td>${esc(v.goal||'—')}</td><td>${esc(v.follow||'—')}</td><td>${esc(v.barrier||'—')}</td></tr>`).join('');
+ let pharmaRows=o.pharma.map(v=>`<tr><td>${esc(v.date||'—')}</td><td>${esc(phTopics[v.topic]?.title||v.topic||'—')}</td><td>${esc(v.effect||'—')}</td><td>${esc(v.safety||'—')}</td><td>${esc(v.plan||'—')}</td></tr>`).join('');
+ $('rpOutput').innerHTML=`<div id="rpPrintable">
+ <h2>LAPORAN PERKEMBANGAN PASIEN</h2><h3>PUSKESMAS NGALUPOLO</h3>
+ <p><b>Identitas/kode:</b> ${esc(o.patient)} &nbsp; <b>Periode:</b> ${esc(period)} &nbsp; <b>Tanggal cetak:</b> ${new Date().toLocaleDateString('id-ID')}</p>
+ <div class="cards">${[['Pemeriksaan CKG',o.ckg.length],['Kunjungan lanjutan',o.visits.length],['Rekonsiliasi obat',o.meds.length],['Konseling',o.counselling.length],['Telaah farmakoterapi',o.pharma.length],['Total catatan',total]].map(x=>`<div class="metric"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('')}</div>
+ <h3>1. Perbandingan pemeriksaan CKG pertama dan terakhir</h3>
+ ${first&&last?`<div style="overflow-x:auto"><table><thead><tr><th>Parameter</th><th>Pertama (${esc(first.date||'')})</th><th>Terakhir (${esc(last.date||'')})</th><th>Perubahan angka</th></tr></thead><tbody>
+ ${[['Berat badan (kg)',first.weight,last.weight],['IMT',first.bmi,last.bmi],['Sistolik (mmHg)',first.sys,last.sys],['Diastolik (mmHg)',first.dia,last.dia],['Gula darah (mg/dL)',first.gtype===last.gtype?first.glucose:null,first.gtype===last.gtype?last.glucose:null],['Kolesterol total (mg/dL)',first.chol,last.chol],['Asam urat (mg/dL)',first.uric,last.uric]].map(x=>`<tr><td>${x[0]}</td><td>${x[1]??'—'}</td><td>${x[2]??'—'}</td><td>${comparison(x[1],x[2])}</td></tr>`).join('')}
+ </tbody></table></div><p class="hint">Perubahan angka bukan diagnosis atau kesimpulan keberhasilan terapi. Gula darah hanya dibandingkan bila jenis pemeriksaannya sama.</p>`:'<p>Belum tersedia dua pemeriksaan CKG untuk perbandingan.</p>'}
+ <h3>2. Tren berat badan dan tekanan darah</h3><p class="hint">Garis tiap parameter dinormalisasi secara terpisah agar pola perubahan terlihat; grafik ini bukan skala klinis bersama.</p><canvas id="rpChart" style="width:100%;height:240px;border:1px solid #e2e8f0;border-radius:8px"></canvas>
+ <h3>3. Riwayat pemeriksaan CKG</h3><div style="overflow-x:auto"><table><thead><tr><th>Tanggal</th><th>BB</th><th>IMT</th><th>TD</th><th>Gula</th><th>Kolesterol</th><th>Asam urat</th><th>Catatan kesimpulan</th></tr></thead><tbody>${ckgRows||'<tr><td colspan="8">Tidak ada data pada periode ini.</td></tr>'}</tbody></table></div>
+ <h3>4. Kunjungan lanjutan</h3><div style="overflow-x:auto"><table><thead><tr><th>Tanggal</th><th>BB</th><th>TD</th><th>Gula</th><th>Kolesterol</th><th>Asam urat</th><th>Evaluasi</th><th>Rencana</th></tr></thead><tbody>${visitRows||'<tr><td colspan="8">Tidak ada kunjungan lanjutan.</td></tr>'}</tbody></table></div>
+ <h3>5. Rekonsiliasi obat</h3><div style="overflow-x:auto"><table><thead><tr><th>Tanggal</th><th>Diagnosis</th><th>Obat dan aturan pakai tercatat</th><th>Status</th><th>Rencana tindak lanjut</th></tr></thead><tbody>${medRows||'<tr><td colspan="5">Tidak ada rekonsiliasi pada periode ini.</td></tr>'}</tbody></table></div>
+ <h3>6. Konseling dan edukasi</h3><div style="overflow-x:auto"><table><thead><tr><th>Tanggal</th><th>Fokus</th><th>Tujuan</th><th>Rencana kontrol</th><th>Hambatan</th></tr></thead><tbody>${counselRows||'<tr><td colspan="5">Tidak ada catatan konseling pada periode ini.</td></tr>'}</tbody></table></div>
+ <h3>7. Telaah farmakoterapi</h3><div style="overflow-x:auto"><table><thead><tr><th>Tanggal</th><th>Topik</th><th>Efektivitas</th><th>Keamanan</th><th>Rencana</th></tr></thead><tbody>${pharmaRows||'<tr><td colspan="5">Tidak ada telaah farmakoterapi pada periode ini.</td></tr>'}</tbody></table></div>
+ <h3>8. Ringkasan dan rencana tindak lanjut</h3><p><b>Kunjungan lanjutan terakhir:</b> ${esc(lastVisit?.date||'Belum tercatat')}</p><p><b>Catatan:</b> Laporan ini merangkum data yang dimasukkan petugas. Interpretasi klinis, diagnosis, perubahan terapi, dan keputusan rujukan harus dilakukan oleh tenaga kesehatan berwenang.</p>
+ <p style="margin-top:42px">Petugas: __________________________ &nbsp;&nbsp; Tanggal: ______________</p>
+ </div>`;
+ rpDrawChart(o.ckg);
+ window.rpLastData=o;
+}
+$('rpMode').onchange=()=>{let m=$('rpMode').value;$('rpMonthWrap').classList.toggle('hidden',m!=='month');$('rpFromWrap').classList.toggle('hidden',m!=='range');$('rpToWrap').classList.toggle('hidden',m!=='range')};
+$('rpGenerate').onclick=rpGenerate;
+$('rpPatient').onchange=()=>{};
+$('rpPrint').onclick=()=>{if(!$('rpOutput').querySelector('#rpPrintable')){alert('Buat laporan terlebih dahulu.');return}let w=window.open('','_blank');if(!w)return alert('Izinkan pop-up untuk mencetak.');let body=$('rpPrintable').innerHTML;let chart=$('rpChart');if(chart){body=body.replace('<canvas id="rpChart" style="width:100%;height:240px;border:1px solid #e2e8f0;border-radius:8px"></canvas>',`<img style="width:100%;max-height:240px" src="${chart.toDataURL('image/png')}">`)}w.document.write(`<html><head><title>Laporan Perkembangan Pasien</title><style>body{font:12px Arial;padding:20px;color:#111}table{width:100%;border-collapse:collapse;margin:8px 0 16px}td,th{border:1px solid #999;padding:5px;text-align:left;vertical-align:top}h2,h3{margin:12px 0 6px}.cards{display:flex;flex-wrap:wrap;gap:8px}.metric{border:1px solid #aaa;padding:8px;min-width:90px}.metric b{display:block;font-size:18px}canvas{max-width:100%}.hint{color:#555}</style></head><body>${body}
+<script>
+(() => {
+  const installBtn = document.getElementById('pwaInstallBtn');
+  let deferredPrompt = null;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone) {
+    installBtn.textContent = '✓ Aplikasi sudah terpasang';
+  }
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredPrompt = event;
+    installBtn.textContent = '＋ Instal aplikasi CKG';
+  });
+  installBtn.addEventListener('click', async () => {
+    if (isStandalone) {
+      alert('Aplikasi CKG sudah dibuka dalam mode aplikasi.');
+      return;
+    }
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      return;
+    }
+    if (isIOS) {
+      alert('Untuk memasang di iPhone: buka halaman ini di Safari, ketuk tombol Bagikan, lalu pilih “Add to Home Screen / Tambahkan ke Layar Utama”.');
+    } else {
+      alert('Untuk memasang di Android: buka halaman ini di Chrome, ketuk menu titik tiga (⋮), pilih “Instal aplikasi” atau “Tambahkan ke layar utama”, lalu konfirmasi.');
+    }
+  });
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Pendaftaran offline gagal:', err));
+    });
+  }
+})();
+</script>
+
+</body></html>`);w.document.close();w.onload=()=>w.print()};
+$('rpExport').onclick=()=>{let o=rpGetData();if(!o)return alert('Pilih pasien.');let a=document.createElement('a'),u=URL.createObjectURL(new Blob([JSON.stringify({app:'Laporan_Perkembangan_Pasien_Ngalupolo',generatedAt:new Date().toISOString(),...o},null,2)],{type:'application/json'}));a.href=u;a.download='Laporan_Perkembangan_'+o.patient.replace(/[^a-z0-9_-]/gi,'_')+'.json';a.click();URL.revokeObjectURL(u)};
+
+// ===== V9: farmakoterapi, edukasi, pemantauan longitudinal, dashboard =====
+const phTopics={
+ hipertensi:{title:'Hipertensi',goal:'Kendalikan tekanan darah dan risiko kardiovaskular secara individual.',review:'Tekanan darah dengan teknik benar, kepatuhan, efek samping, fungsi ginjal dan elektrolit bila relevan, obat lain yang dapat menaikkan tekanan darah, risiko kardiovaskular.',safety:'Waspadai hipotensi, pusing, gangguan elektrolit/fungsi ginjal, edema atau batuk sesuai kelas obat. Jangan menghentikan obat tanpa arahan klinisi.',guide:'Verifikasi pilihan terapi dan target berdasarkan PNPK/pedoman hipertensi nasional terbaru, Formularium Nasional, serta kondisi komorbid.'},
+ diabetes:{title:'Diabetes melitus',goal:'Capai kendali glikemik individual dan cegah komplikasi.',review:'Gejala hipoglikemia/hiperglikemia, GDP/GD2JPP atau HbA1c sesuai indikasi, berat badan, tekanan darah, fungsi ginjal, kaki, mata, dan kepatuhan.',safety:'Tinjau risiko hipoglikemia, fungsi ginjal, asupan makan, puasa, kehamilan, serta efek samping gastrointestinal atau lainnya sesuai obat.',guide:'Verifikasi regimen berdasarkan PNPK/pedoman PERKENI terbaru, Fornas, fungsi ginjal, komorbid, risiko hipoglikemia, dan preferensi pasien.'},
+ dislipidemia:{title:'Dislipidemia',goal:'Turunkan risiko penyakit kardiovaskular berdasarkan risiko total pasien.',review:'Profil lipid lengkap, kepatuhan, efek samping otot, fungsi hati bila terindikasi, interaksi obat, serta faktor risiko kardiovaskular.',safety:'Tinjau nyeri/kelemahan otot, interaksi obat, kehamilan, penyakit hati, dan indikasi pemeriksaan lanjutan.',guide:'Keputusan terapi tidak didasarkan pada kolesterol total saja. Gunakan pedoman dislipidemia dan penilaian risiko kardiovaskular terkini.'},
+ hiperurisemia:{title:'Hiperurisemia / gout',goal:'Bedakan hiperurisemia tanpa gejala dengan gout dan cegah kekambuhan/komplikasi.',review:'Serangan nyeri sendi, frekuensi flare, kadar asam urat bila relevan, fungsi ginjal, batu saluran kemih, dan obat pemicu.',safety:'Tinjau fungsi ginjal, reaksi hipersensitivitas, interaksi obat, serta tanda serangan akut. Asam urat tinggi tanpa gejala tidak otomatis memerlukan obat.',guide:'Verifikasi indikasi terapi penurun asam urat dan tata laksana serangan berdasarkan pedoman gout terkini dan kondisi pasien.'},
+ obesitas:{title:'Obesitas',goal:'Perbaikan berat badan dan faktor risiko metabolik secara bertahap dan berkelanjutan.',review:'Berat badan, IMT, lingkar perut, tekanan darah, glukosa, lipid, pola makan, aktivitas, tidur, dan hambatan sosial.',safety:'Hindari diet ekstrem atau produk pelangsing tidak jelas. Intervensi intensif/obat hanya melalui penilaian klinis sesuai indikasi.',guide:'Utamakan intervensi perilaku terstruktur; terapi tambahan perlu penilaian manfaat-risiko dan pedoman terkini.'},
+ gizikurang:{title:'Gizi kurang',goal:'Identifikasi penyebab dan perbaiki asupan serta kondisi dasar.',review:'Tren berat badan, asupan makan, gejala saluran cerna, penyakit kronis/infeksi, kemampuan makan, dan tanda bahaya.',safety:'Penurunan berat badan tidak disengaja, dehidrasi, edema, atau tidak mampu makan perlu evaluasi klinis. Risiko refeeding pada kondisi tertentu memerlukan pengawasan.',guide:'Rencana gizi disesuaikan dengan penyebab, usia, penyakit penyerta, dan asesmen tenaga gizi/klinisi.'},
+ tbc:{title:'Tuberkulosis (TBC)',goal:'Pastikan pasien terduga/terdiagnosis mengikuti alur pemeriksaan dan pengobatan program TBC.',review:'Gejala, hasil pemeriksaan bakteriologis/penunjang, status pengobatan, kepatuhan, efek samping, status gizi, kontak serumah, dan jadwal kontrol.',safety:'Jangan memulai, menghentikan, atau mengubah OAT sendiri. Efek samping serius seperti ikterus, muntah terus-menerus, gangguan penglihatan, sesak/reaksi alergi perlu penilaian segera.',guide:'Regimen OAT harus mengikuti pedoman nasional program TBC yang berlaku dan ditetapkan oleh petugas/dokter program; perhatikan interaksi dan pemantauan.'}
+};
+function phRender(){let t=phTopics[$('phTopic').value];$('phInfo').innerHTML=`<h3>${t.title}</h3><p><b>Tujuan:</b> ${t.goal}</p><p><b>Parameter pemantauan:</b> ${t.review}</p><p><b>Aspek keamanan:</b> ${t.safety}</p><div class="note"><b>Acuan:</b> ${t.guide}<br>Rujuk dokumen resmi terbaru Kementerian Kesehatan/organisasi profesi dan Fornas. Aplikasi tidak menyimpan daftar dosis atau menghasilkan resep otomatis.</div>`}
+$('phTopic').onchange=phRender;$('phDate').value=new Date().toISOString().slice(0,10);
+$('phSave').onclick=()=>{let key=($('phPatient').value||'tanpa-kode').trim().toLowerCase(),k='ckg_pharma_v9_'+key,o={topic:$('phTopic').value,patient:$('phPatient').value,current:$('phCurrent').value,effect:$('phEffect').value,safety:$('phSafety').value,plan:$('phPlan').value,officer:$('phOfficer').value,date:$('phDate').value};try{localStorage.setItem(k,JSON.stringify(o));recordRender();dashRender();alert('Catatan telaah farmakoterapi tersimpan pada perangkat ini.')}catch(e){alert('Penyimpanan tidak tersedia.')}};
+$('phPrint').onclick=()=>{let t=phTopics[$('phTopic').value],w=window.open('','_blank');if(!w)return alert('Izinkan pop-up untuk mencetak.');w.document.write(`<html><body style="font:14px Arial;padding:24px"><h2>PUSKESMAS NGALUPOLO — CATATAN TELAAH FARMAKOTERAPI</h2><h3>${t.title}</h3><p>Pasien/kode: ${esc($('phPatient').value)} | Tanggal: ${esc($('phDate').value)}</p><p><b>Terapi saat ini:</b><br>${esc($('phCurrent').value)}</p><p><b>Pemantauan efektivitas:</b><br>${esc($('phEffect').value)}</p><p><b>Keamanan/kepatuhan:</b><br>${esc($('phSafety').value)}</p><p><b>Rencana:</b><br>${esc($('phPlan').value)}</p><p>Petugas: ${esc($('phOfficer').value)}</p><small>Bahan bantu telaah; verifikasi dengan pedoman resmi dan klinisi berwenang.</small>
+<script>
+(() => {
+  const installBtn = document.getElementById('pwaInstallBtn');
+  let deferredPrompt = null;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone) {
+    installBtn.textContent = '✓ Aplikasi sudah terpasang';
+  }
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredPrompt = event;
+    installBtn.textContent = '＋ Instal aplikasi CKG';
+  });
+  installBtn.addEventListener('click', async () => {
+    if (isStandalone) {
+      alert('Aplikasi CKG sudah dibuka dalam mode aplikasi.');
+      return;
+    }
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      return;
+    }
+    if (isIOS) {
+      alert('Untuk memasang di iPhone: buka halaman ini di Safari, ketuk tombol Bagikan, lalu pilih “Add to Home Screen / Tambahkan ke Layar Utama”.');
+    } else {
+      alert('Untuk memasang di Android: buka halaman ini di Chrome, ketuk menu titik tiga (⋮), pilih “Instal aplikasi” atau “Tambahkan ke layar utama”, lalu konfirmasi.');
+    }
+  });
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Pendaftaran offline gagal:', err));
+    });
+  }
+})();
+</script>
+
+</body></html>`);w.document.close();w.print()};
+
+const eduTopics={
+ hipertensi:['Hipertensi','Tekanan darah tinggi sering tidak bergejala. Ukur tekanan darah secara berkala dan ikuti jadwal kontrol.','Batasi garam dan makanan tinggi natrium; perbanyak sayur/buah sesuai kondisi; pilih makanan segar; aktivitas fisik teratur; hindari rokok; batasi alkohol.','Minum obat sesuai instruksi. Jangan menghentikan obat saat tekanan darah terasa normal. Bawa daftar obat saat kontrol.','Nyeri dada, sesak berat, kelemahan satu sisi, gangguan bicara/penglihatan, atau sakit kepala hebat mendadak perlu pertolongan segera.'],
+ diabetes:['Diabetes','Diabetes adalah kondisi gula darah tinggi yang perlu dipantau terus-menerus.','Atur porsi karbohidrat, kurangi minuman manis, makan teratur, pilih serat, dan sesuaikan pola makan dengan obat serta aktivitas.','Kenali tanda gula darah rendah/tinggi; periksa kaki; kontrol gula dan pemeriksaan komplikasi sesuai jadwal. Jangan mengubah obat sendiri.','Penurunan kesadaran, muntah berulang, napas cepat/dalam, dehidrasi berat, atau hipoglikemia berat adalah keadaan darurat.'],
+ dislipidemia:['Dislipidemia','Kolesterol atau trigliserida yang tidak terkendali dapat meningkatkan risiko penyakit jantung dan stroke.','Kurangi lemak trans dan lemak jenuh, batasi gorengan/olahan, pilih ikan, kacang, sayur, buah, dan sumber serat.','Gunakan obat sesuai instruksi; pemeriksaan profil lipid dan evaluasi risiko dilakukan sesuai jadwal. Kolesterol total saja tidak cukup untuk menentukan terapi.','Nyeri dada atau gejala stroke memerlukan pertolongan darurat.'],
+ hiperurisemia:['Hiperurisemia / gout','Kadar asam urat tinggi tidak selalu berarti gout. Kenali serangan nyeri, bengkak, dan kemerahan sendi.','Cukup minum bila tidak ada pembatasan cairan; batasi minuman tinggi gula/fruktosa dan alkohol; pola makan seimbang. Hindari pantangan ekstrem tanpa asesmen.','Jangan memulai atau menghentikan obat penurun asam urat tanpa arahan. Sampaikan riwayat batu ginjal dan obat yang digunakan.','Sendi sangat merah/panas disertai demam atau kondisi memburuk perlu pemeriksaan segera.'],
+ obesitas:['Obesitas','Berat badan berlebih dapat meningkatkan risiko diabetes, hipertensi, dan penyakit jantung.','Pilih porsi seimbang, kurangi minuman manis dan makanan ultra-proses, tingkatkan sayur, protein sehat, dan aktivitas bertahap.','Tentukan target realistis bersama petugas; pantau berat badan dan lingkar perut berkala; utamakan perubahan yang dapat dipertahankan.','Hindari obat pelangsing atau diet ekstrem tanpa evaluasi tenaga kesehatan.'],
+ gizikurang:['Gizi kurang','Berat badan rendah atau penurunan berat badan tanpa sebab perlu dicari penyebabnya.','Makan lebih sering dalam porsi sesuai toleransi; tambah sumber protein dan energi bergizi; manfaatkan pangan lokal beragam.','Pantau berat badan, nafsu makan, dan keluhan. Minta penilaian tenaga gizi untuk rencana individual, terutama bila ada penyakit penyerta.','Tidak mampu makan/minum, dehidrasi, lemah berat, edema, atau penurunan berat badan cepat perlu pemeriksaan klinis.'],
+ tbc:['Tuberkulosis (TBC)','TBC dapat disembuhkan dengan pemeriksaan dan pengobatan yang tepat. Tutup mulut saat batuk, terapkan etika batuk, dan jaga ventilasi.','Konsumsi makanan bergizi, cukup istirahat, hindari rokok, dan dukung asupan selama pengobatan.','Minum OAT sesuai jadwal sampai selesai. Jangan putus obat. Hadiri kontrol dan pemeriksaan dahak sesuai program; informasikan efek samping.','Batuk darah banyak, sesak berat, penurunan kesadaran, atau reaksi obat berat perlu pertolongan segera.']}
+function eduRender(){let a=eduTopics[$('eduTopic').value];$('eduContent').innerHTML=`<h3>${a[0]}</h3><p><b>Mengenal penyakit:</b> ${a[1]}</p><p><b>Pola hidup dan gizi:</b> ${a[2]}</p><p><b>Pengobatan dan kontrol:</b> ${a[3]}</p><div class="note"><b>Kapan harus segera mencari pertolongan:</b> ${a[4]}</div>`}
+$('eduTopic').onchange=eduRender;$('eduPrint').onclick=()=>{let w=window.open('','_blank');if(!w)return alert('Izinkan pop-up untuk mencetak.');w.document.write(`<html><body style="font:14px Arial;padding:24px"><h2>PUSKESMAS NGALUPOLO — EDUKASI PASIEN</h2>${$('eduContent').innerHTML}
+<script>
+(() => {
+  const installBtn = document.getElementById('pwaInstallBtn');
+  let deferredPrompt = null;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone) {
+    installBtn.textContent = '✓ Aplikasi sudah terpasang';
+  }
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredPrompt = event;
+    installBtn.textContent = '＋ Instal aplikasi CKG';
+  });
+  installBtn.addEventListener('click', async () => {
+    if (isStandalone) {
+      alert('Aplikasi CKG sudah dibuka dalam mode aplikasi.');
+      return;
+    }
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      return;
+    }
+    if (isIOS) {
+      alert('Untuk memasang di iPhone: buka halaman ini di Safari, ketuk tombol Bagikan, lalu pilih “Add to Home Screen / Tambahkan ke Layar Utama”.');
+    } else {
+      alert('Untuk memasang di Android: buka halaman ini di Chrome, ketuk menu titik tiga (⋮), pilih “Instal aplikasi” atau “Tambahkan ke layar utama”, lalu konfirmasi.');
+    }
+  });
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Pendaftaran offline gagal:', err));
+    });
+  }
+})();
+</script>
+
+</body></html>`);w.document.close();w.print()};
+
+let fuData=[];try{fuData=JSON.parse(localStorage.getItem('ckg_followups_v9')||'[]');if(!Array.isArray(fuData))fuData=[]}catch(e){fuData=[]}
+$('fuDate').value=new Date().toISOString().slice(0,10);
+function fuPatientKey(r){return String(r.mr||r.name||'').trim()}
+function fuRender(){let ks=[...new Set([...data.map(fuPatientKey),...patientRecon.map(r=>r.prMR||r.prName),...fuData.map(r=>r.patient)].filter(Boolean))],sel=$('fuPatient'),old=sel.value;sel.innerHTML='<option value="">Pilih pasien</option>'+ks.map(k=>`<option value="${esc(k)}">${esc(k)}</option>`).join('');sel.value=ks.includes(old)?old:'';$('fuRows').innerHTML=fuData.slice().sort((a,b)=>(b.date||'').localeCompare(a.date||'')).map(o=>`<tr><td>${esc(o.date)}</td><td>${esc(o.patient)}</td><td>${o.weight??'—'}</td><td>${o.sys??'—'}/${o.dia??'—'}</td><td>${o.glucose??'—'} (${esc(o.gtype||'')})</td><td>${o.chol??'—'}</td><td>${o.uric??'—'}</td><td><button class="danger" onclick="fuDelete(${o.id})">Hapus</button></td></tr>`).join('')||'<tr><td colspan="8">Belum ada kunjungan lanjutan.</td></tr>'}
+function fuCurrent(){return {patient:$('fuPatient').value,date:$('fuDate').value,weight:$('fuWeight').value===''?null:Number($('fuWeight').value),sys:$('fuSys').value===''?null:Number($('fuSys').value),dia:$('fuDia').value===''?null:Number($('fuDia').value),glucose:$('fuGlucose').value===''?null:Number($('fuGlucose').value),gtype:$('fuGtype').value,chol:$('fuChol').value===''?null:Number($('fuChol').value),uric:$('fuUric').value===''?null:Number($('fuUric').value),notes:$('fuNotes').value,plan:$('fuPlan').value,id:Date.now()}}
+function fuCompare(){let k=$('fuPatient').value;if(!k){alert('Pilih pasien terlebih dahulu.');return}let first=data.filter(r=>fuPatientKey(r)===k).sort((a,b)=>(a.date||'').localeCompare(b.date||''))[0],latest=fuData.filter(r=>r.patient===k).sort((a,b)=>(b.date||'').localeCompare(a.date||''))[0]||fuCurrent();if(!first){alert('Pemeriksaan awal tidak ditemukan.');return}let rows=[['Berat badan (kg)',first.weight,latest.weight],['Sistolik (mmHg)',first.sys,latest.sys],['Diastolik (mmHg)',first.dia,latest.dia],['Gula darah (mg/dL)',first.gtype===latest.gtype?first.glucose:null,first.gtype===latest.gtype?latest.glucose:null],['Kolesterol total (mg/dL)',first.chol,latest.chol],['Asam urat (mg/dL)',first.uric,latest.uric]];$('fuResult').classList.remove('hidden');$('fuResult').innerHTML='<h3>Perbandingan pemeriksaan pertama dan kunjungan terbaru</h3><p>Pasien/kode: '+esc(k)+' · Tanggal awal: '+esc(first.date||'—')+' · Tanggal terbaru: '+esc(latest.date||'—')+'</p><div style="overflow-x:auto"><table><thead><tr><th>Parameter</th><th>Awal</th><th>Terbaru</th><th>Perubahan</th></tr></thead><tbody>'+rows.map(x=>`<tr><td>${x[0]}</td><td>${x[1]??'—'}</td><td>${x[2]??'—'}</td><td>${x[1]!=null&&x[2]!=null?(Number(x[2])-Number(x[1])).toFixed(1):'Tidak dapat dibandingkan'}</td></tr>`).join('')+'</tbody></table></div><p class="hint">Perubahan angka bukan kesimpulan klinis otomatis. Perhatikan kesamaan metode/jenis tes, kondisi saat pengukuran, dan interpretasi tenaga kesehatan.</p>'}
+$('fuSave').onclick=()=>{let o=fuCurrent();if(!o.patient){alert('Pilih pasien dari riwayat CKG.');return}if(!o.date){alert('Isi tanggal kunjungan.');return}fuData.push(o);try{localStorage.setItem('ckg_followups_v9',JSON.stringify(fuData));fuRender();recordRender();dashRender();alert('Kunjungan lanjutan tersimpan.')}catch(e){alert('Penyimpanan browser penuh/tidak tersedia.')}};
+$('fuCompare').onclick=fuCompare;window.fuDelete=id=>{if(confirm('Hapus kunjungan lanjutan ini?')){fuData=fuData.filter(x=>x.id!==id);localStorage.setItem('ckg_followups_v9',JSON.stringify(fuData));fuRender();recordRender();dashRender()}};
+
+function dashRender(){let total=data.length,patients=new Set(data.map(fuPatientKey).filter(Boolean)).size,rec=patientRecon.length,follow=fuData.length,pending=patientRecon.filter(x=>x.prStatus==='Perlu ditindaklanjuti'||x.prStatus==='Perlu pemantauan lanjutan').length,risks={Hipertensi:0,Diabetes:0,Kolesterol:0,IMT:0,'Skrining TBC':0};data.forEach(r=>{if(Number(r.sys)>=140||Number(r.dia)>=90)risks.Hipertensi++;if((r.gtype==='puasa'&&Number(r.glucose)>=126)||(r.gtype==='2jam'&&Number(r.glucose)>=200))risks.Diabetes++;if(Number(r.chol)>=200)risks.Kolesterol++;if(Number(r.bmi)>=25)risks.IMT++;if(r.tb==='yes'||r.contact==='yes')risks['Skrining TBC']++});$('dashCards').innerHTML=[['Kunjungan CKG',total],['Pasien unik',patients],['Rekonsiliasi obat',rec],['Kunjungan lanjutan',follow],['Tindak lanjut obat tertunda',pending],['Rekonsiliasi ditindaklanjuti',rec-pending]].map(x=>`<div class="metric"><small>${x[0]}</small><b>${x[1]}</b></div>`).join('');$('dashRisk').innerHTML=Object.entries(risks).map(([k,v])=>`<div class="rowresult"><span>${k}</span><b>${v}</b></div>`).join('');let counselKeys=Object.keys(localStorage).filter(k=>k.startsWith('ckg_counsel_')),counselSaved=counselKeys.length,done=patientRecon.filter(x=>x.prStatus==='Sudah ditindaklanjuti'||x.prStatus==='Sudah diklarifikasi').length;$('dashActions').innerHTML=`<div class="rowresult"><span>Catatan konseling tersimpan pada perangkat</span><b>${counselSaved}</b></div><div class="rowresult"><span>Rekonsiliasi sudah diklarifikasi/ditindaklanjuti</span><b>${done}</b></div><div class="rowresult"><span>Masih perlu tindak lanjut/pemantauan</span><b>${pending}</b></div><p class="hint">Distribusi risiko adalah hitungan skrining positif berdasarkan ambang sederhana pada data tersimpan, bukan diagnosis. Catatan konseling dihitung dari jumlah kunci penyimpanan lokal dan dapat mencakup beberapa pasien.</p>`}
+$('dashRefresh').onclick=dashRender;$('dashPrint').onclick=()=>window.print();
+
+renderHistory();draw();fuRender();phRender();eduRender();dashRender();recordRender();rpPopulate();
+</script>
+<script>
+(() => {
+  const installBtn = document.getElementById('pwaInstallBtn');
+  let deferredPrompt = null;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent);
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+  if (isStandalone) {
+    installBtn.textContent = '✓ Aplikasi sudah terpasang';
+  }
+  window.addEventListener('beforeinstallprompt', (event) => {
+    event.preventDefault();
+    deferredPrompt = event;
+    installBtn.textContent = '＋ Instal aplikasi CKG';
+  });
+  installBtn.addEventListener('click', async () => {
+    if (isStandalone) {
+      alert('Aplikasi CKG sudah dibuka dalam mode aplikasi.');
+      return;
+    }
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      return;
+    }
+    if (isIOS) {
+      alert('Untuk memasang di iPhone: buka halaman ini di Safari, ketuk tombol Bagikan, lalu pilih “Add to Home Screen / Tambahkan ke Layar Utama”.');
+    } else {
+      alert('Untuk memasang di Android: buka halaman ini di Chrome, ketuk menu titik tiga (⋮), pilih “Instal aplikasi” atau “Tambahkan ke layar utama”, lalu konfirmasi.');
+    }
+  });
+  if ('serviceWorker' in navigator && location.protocol === 'https:') {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js').catch(err => console.warn('Pendaftaran offline gagal:', err));
+    });
+  }
+})();
+</script>
+
+</body></html>
