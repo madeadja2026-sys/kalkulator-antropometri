@@ -1,0 +1,21 @@
+{
+  "id": "./",
+  "name": "CKG Puskesmas Ngalupolo",
+  "short_name": "CKG Ngalupolo",
+  "description": "Cek Kesehatan Gratis, rekam pasien terpadu, edukasi, pemantauan dan laporan perkembangan pasien.",
+  "lang": "id-ID",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#f2f7f7",
+  "theme_color": "#0f766e",
+  "icons": [
+    {
+      "src": "./icons/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
